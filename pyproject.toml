@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pysvg"
+dynamic = ["version"]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "colorama>=0.4.6",
+    "pydantic>=2.11.5",
+    "typing-extensions>=4.14.0",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.ruff]
+exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "dist"]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.format]
+line-ending = "lf"
+quote-style = "double"
+
+[tool.ruff.lint]
+select = ["E", "W"]
+ignore = [
+    "E999",
+    "EXE001",
+    "UP009",
+    "F401",
+    "TID252",
+    "F403",
+    "F841",
+    "E501",
+    "W291",
+    "W293",
+    "E741",
+    "E712",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["pysvg"]
