@@ -1,8 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class SVGCode(BaseModel):
     """SVG or SVG content component code"""
+
+    model_config = ConfigDict(extra="forbid")
 
     code: str = Field(description="SVG code")
 

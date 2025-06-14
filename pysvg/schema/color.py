@@ -1,12 +1,21 @@
 import re
 
-from pydantic import BaseModel, Field, field_validator, model_serializer, model_validator
+from pydantic import (
+    BaseModel,
+    Field,
+    field_validator,
+    model_serializer,
+    model_validator,
+    ConfigDict,
+)
 
 from pysvg.constants import SVG_NONE
 
 
 class Color(BaseModel):
     """SVG color type that supports multiple color formats"""
+
+    model_config = ConfigDict(extra="forbid")
 
     value: str = Field(..., description="Color value")
 
