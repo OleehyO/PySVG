@@ -1,12 +1,12 @@
 from typing import List, Tuple
 from typing_extensions import override
 
-from pysvg.schema import AppearanceConfig, TransformConfig
-from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
+from pysvg.schema import AppearanceConfig, TransformConfig, BBox
+from pysvg.components.base import BaseSVGComponent, ComponentConfig
 from pydantic import Field, field_validator
 
 
-class PolylineConfig(BaseSVGConfig):
+class PolylineConfig(ComponentConfig):
     """Geometry configuration for Polyline components."""
 
     points: List[Tuple[float, float]] = Field(
@@ -46,19 +46,14 @@ class Polyline(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config is not None else PolylineConfig(),
-            appearance=appearance if appearance is not None else AppearanceConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else PolylineConfig(),
+            appearance=appearance if appearance else AppearanceConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
+    @override
     @property
-    def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the polyline (centroid of all points).
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
+    def central_point_relative(self) -> Tuple[float, float]:
         if not self.config.points:
             return (0, 0)
 
@@ -68,34 +63,26 @@ class Polyline(BaseSVGComponent):
 
         return (total_x / count, total_y / count)
 
-    def to_svg_element(self) -> str:
-        """
-        Generate complete SVG polyline element string
-
-        Returns:
-            XML string of SVG polyline element
-        """
-        attrs = {}
-        attrs.update(self.config.to_svg_dict())
-        attrs.update(self.appearance.to_svg_dict())
-        attrs.update(self.transform.to_svg_dict())
-        attr_strings = [f'{key}="{value}"' for key, value in attrs.items()]
-        return f"<polyline {' '.join(attr_strings)} />"
-
-    def get_bounding_box(self) -> Tuple[float, float, float, float]:
-        """
-        Get polyline's bounding box (without considering transformations)
-
-        Returns:
-            (min_x, min_y, max_x, max_y) bounding box coordinates
-        """
+    @override
+    def get_bounding_box(self) -> BBox:
         if not self.config.points:
-            return (0, 0, 0, 0)
+            return BBox(x=0, y=0, width=0, height=0)
 
         x_coords = [x for x, y in self.config.points]
         y_coords = [y for x, y in self.config.points]
 
-        return (min(x_coords), min(y_coords), max(x_coords), max(y_coords))
+        return BBox(
+            x=min(x_coords),
+            y=min(y_coords),
+            width=max(x_coords) - min(x_coords),
+            height=max(y_coords) - min(y_coords),
+        )
+
+    @override
+    def to_svg_element(self) -> str:
+        attrs = self.get_attr_dict()
+        attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
+        return f"<polyline {' '.join(attrs_ls)} />"
 
     def get_total_length(self) -> float:
         """

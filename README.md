@@ -55,6 +55,13 @@ Create complex curves and shapes using polylines.
 
 [View Example Code](examples/polyline/quickstart.py)
 
+### Cell
+Create a cell with text, image, or SVG content.
+
+![Cell Example](examples/cell/quickstart.svg)
+
+[View Example Code](examples/cell/quickstart.py)
+
 ### Matrix
 Visualize list of lists (matrices) with various styling options.
 
@@ -79,7 +86,12 @@ uv pip install svg-python
 
 All components are located in the `pysvg/components` directory. For detailed usage examples of each component, please check the corresponding examples in the `examples` directory.
 
-The `apps` directory contains more complex examples, including the project logo (`apps/house.py`) shown above.
+<!-- The `apps` directory contains more complex examples, including the project logo (`apps/house.py`) shown above. -->
+
+## Note
+
+* For ease of use, transform operations in PySVG are commutative. For example, `foo.rotate(p1).move(p2)` is equivalent to `foo.move(p2).rotate(p1)`. This differs from standard SVG behavior because we automatically arrange transform attributes in a fixed order: translate, scale, rotate, skewX, and skewY.
+
 
 ## Contributing
 

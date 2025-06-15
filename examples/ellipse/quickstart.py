@@ -162,7 +162,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=660, height=410)
+    canvas = Canvas(width=770, height=470, viewbox=(100, 90, 690, 390))
 
     # Create example ellipses
     ellipses = [
@@ -240,7 +240,7 @@ def generate_demo_svg():
             ),
         )
         .scale((2.0, 1.2))
-        .move(600, 200),
+        .move(500, 200),
         # Create petal effect (multiple rotated ellipses)
         Ellipse(
             config=EllipseConfig(rx=60, ry=15),

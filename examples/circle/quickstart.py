@@ -125,7 +125,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=550, height=390)
+    canvas = Canvas(width=600, height=440, viewbox=(80, 80, 520, 360))
 
     # Create example circles
     circles = [

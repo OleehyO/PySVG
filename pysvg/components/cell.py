@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from pysvg.schema import AppearanceConfig, TransformConfig
-from pysvg.components.base import BaseSVGComponent
+from pysvg.components.base import BaseSVGComponent, BBox
 from pysvg.components.rectangle import Rectangle, RectangleConfig
 from pysvg.components.content import (
     TextContent,
@@ -12,6 +12,7 @@ from pysvg.components.content import (
     SVGConfig,
 )
 from pydantic import Field
+from typing_extensions import override
 
 
 class CellConfig(RectangleConfig):
@@ -35,6 +36,10 @@ class CellConfig(RectangleConfig):
         if sum(content_types) > 1:
             raise ValueError("Only one type of content (text, image, or svg) can be specified")
 
+    @override
+    def to_svg_dict(self) -> dict[str, str]:
+        raise NotImplementedError("CellConfig is not implemented")
+
 
 class Cell(BaseSVGComponent):
     """
@@ -49,7 +54,7 @@ class Cell(BaseSVGComponent):
     ):
         super().__init__(
             config=config,
-            transform=transform if transform is not None else TransformConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
         # Create underlying rectangle component
@@ -66,18 +71,18 @@ class Cell(BaseSVGComponent):
             transform=transform,
         )
 
+    @override
     @property
-    def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the cell.
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
+    def central_point_relative(self) -> Tuple[float, float]:
         center_x = self.config.x + self.config.width / 2
         center_y = self.config.y + self.config.height / 2
         return (center_x, center_y)
 
+    @override
+    def get_bounding_box(self) -> BBox:
+        return self._rectangle.get_bounding_box()
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate complete SVG element string for the cell with its content

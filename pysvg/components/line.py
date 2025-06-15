@@ -1,23 +1,23 @@
 from typing import Tuple
 from typing_extensions import override
 
-from pysvg.schema import AppearanceConfig, TransformConfig
-from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
+from pysvg.schema import AppearanceConfig, TransformConfig, BBox
+from pysvg.components.base import BaseSVGComponent, ComponentConfig
 from pydantic import Field
 
 
-class LineConfig(BaseSVGConfig):
+class LineConfig(ComponentConfig):
     """Geometry configuration for Line components."""
 
-    x1: float = Field(default=0, description="Line start X coordinate")
-    y1: float = Field(default=0, description="Line start Y coordinate")
-    x2: float = Field(default=0, description="Line end X coordinate")
-    y2: float = Field(default=0, description="Line end Y coordinate")
+    x1: float = Field(default=0, ge=0, description="Line start X coordinate")
+    y1: float = Field(default=0, ge=0, description="Line start Y coordinate")
+    x2: float = Field(default=100, ge=0, description="Line end X coordinate")
+    y2: float = Field(default=100, ge=0, description="Line end Y coordinate")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
         """Convert config parameters to SVG attributes dictionary."""
-        attrs = super().to_svg_dict()
+        attrs = self.model_dump(exclude_none=True)
         attrs = {k: str(v) for k, v in attrs.items()}
         return attrs
 
@@ -34,49 +34,32 @@ class Line(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config is not None else LineConfig(),
-            appearance=appearance if appearance is not None else AppearanceConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else LineConfig(),
+            appearance=appearance if appearance else AppearanceConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
+    @override
     @property
-    def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the line (midpoint).
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
+    def central_point_relative(self) -> Tuple[float, float]:
         center_x = (self.config.x1 + self.config.x2) / 2
         center_y = (self.config.y1 + self.config.y2) / 2
         return (center_x, center_y)
 
+    @override
+    def get_bounding_box(self) -> BBox:
+        return BBox(
+            x=min(self.config.x1, self.config.x2),
+            y=min(self.config.y1, self.config.y2),
+            width=abs(self.config.x2 - self.config.x1),
+            height=abs(self.config.y2 - self.config.y1),
+        )
+
+    @override
     def to_svg_element(self) -> str:
-        """
-        Generate complete SVG line element string
-
-        Returns:
-            XML string of SVG line element
-        """
-        attrs = {}
-        attrs.update(self.config.to_svg_dict())
-        attrs.update(self.appearance.to_svg_dict())
-        attrs.update(self.transform.to_svg_dict())
-        attr_strings = [f'{key}="{value}"' for key, value in attrs.items()]
-        return f"<line {' '.join(attr_strings)} />"
-
-    def get_bounding_box(self) -> Tuple[float, float, float, float]:
-        """
-        Get line's bounding box (without considering transformations)
-
-        Returns:
-            (min_x, min_y, max_x, max_y) bounding box coordinates
-        """
-        min_x = min(self.config.x1, self.config.x2)
-        max_x = max(self.config.x1, self.config.x2)
-        min_y = min(self.config.y1, self.config.y2)
-        max_y = max(self.config.y1, self.config.y2)
-        return (min_x, min_y, max_x, max_y)
+        attrs = self.get_attr_dict()
+        attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
+        return f"<line {' '.join(attrs_ls)} />"
 
     def get_length(self) -> float:
         """

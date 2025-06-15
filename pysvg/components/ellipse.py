@@ -1,23 +1,23 @@
 from typing import Tuple
 from typing_extensions import override
 
-from pysvg.schema import AppearanceConfig, TransformConfig
-from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
+from pysvg.schema import AppearanceConfig, TransformConfig, BBox
+from pysvg.components.base import BaseSVGComponent, ComponentConfig
 from pydantic import Field
 
 
-class EllipseConfig(BaseSVGConfig):
+class EllipseConfig(ComponentConfig):
     """Geometry configuration for Ellipse components."""
 
-    cx: float = Field(default=0, description="Ellipse center X coordinate")
-    cy: float = Field(default=0, description="Ellipse center Y coordinate")
-    rx: float = Field(ge=0, description="Ellipse X-axis radius (must be non-negative)")
-    ry: float = Field(ge=0, description="Ellipse Y-axis radius (must be non-negative)")
+    cx: float = Field(default=100, description="Ellipse center X coordinate")
+    cy: float = Field(default=50, description="Ellipse center Y coordinate")
+    rx: float = Field(default=100, ge=0, description="Ellipse X-axis radius (must be non-negative)")
+    ry: float = Field(default=50, ge=0, description="Ellipse Y-axis radius (must be non-negative)")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
         """Convert config parameters to SVG attributes dictionary."""
-        attrs = super().to_svg_dict()
+        attrs = self.model_dump(exclude_none=True)
         attrs = {k: str(v) for k, v in attrs.items()}
         return attrs
 
@@ -34,47 +34,29 @@ class Ellipse(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config is not None else EllipseConfig(),
-            appearance=appearance if appearance is not None else AppearanceConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else EllipseConfig(),
+            appearance=appearance if appearance else AppearanceConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
+    @override
     @property
-    def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the ellipse.
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
+    def central_point_relative(self) -> Tuple[float, float]:
         return (self.config.cx, self.config.cy)
 
+    @override
     def to_svg_element(self) -> str:
-        """
-        Generate complete SVG ellipse element string
+        attrs = self.get_attr_dict()
+        attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
+        return f"<ellipse {' '.join(attrs_ls)} />"
 
-        Returns:
-            XML string of SVG ellipse element
-        """
-        attrs = {}
-        attrs.update(self.config.to_svg_dict())
-        attrs.update(self.appearance.to_svg_dict())
-        attrs.update(self.transform.to_svg_dict())
-        attr_strings = [f'{key}="{value}"' for key, value in attrs.items()]
-        return f"<ellipse {' '.join(attr_strings)} />"
-
-    def get_bounding_box(self) -> Tuple[float, float, float, float]:
-        """
-        Get ellipse's bounding box (without considering transformations)
-
-        Returns:
-            (min_x, min_y, max_x, max_y) bounding box coordinates
-        """
-        return (
-            self.config.cx - self.config.rx,
-            self.config.cy - self.config.ry,
-            self.config.cx + self.config.rx,
-            self.config.cy + self.config.ry,
+    @override
+    def get_bounding_box(self) -> BBox:
+        return BBox(
+            x=self.config.cx - self.config.rx,
+            y=self.config.cy - self.config.ry,
+            width=2 * self.config.rx,
+            height=2 * self.config.ry,
         )
 
     def get_area(self) -> float:

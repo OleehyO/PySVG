@@ -192,7 +192,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=590, height=290)
+    canvas = Canvas(width=590, height=290, viewbox=(50, 30, 590, 290))
 
     # Create example polylines
     polylines = []
