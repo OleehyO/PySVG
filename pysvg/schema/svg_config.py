@@ -19,11 +19,6 @@ class BaseSVGConfig(BaseModel, ABC):
         """Convert config parameters to SVG attributes dictionary."""
         raise NotImplementedError("Not implemented")
 
-    @abstractmethod
-    def reset(self) -> None:
-        """Reset the config to the default values"""
-        raise NotImplementedError("Not implemented")
-
 
 class ComponentConfig(BaseSVGConfig):
     """Base configuration for all components"""
@@ -31,10 +26,6 @@ class ComponentConfig(BaseSVGConfig):
     @override
     def to_svg_dict(self) -> dict[str, str]:
         """**Different component has different attributes name**, so this method is not implemented"""
-        raise NotImplementedError("Not implemented")
-
-    @override
-    def reset(self) -> None:
         raise NotImplementedError("Not implemented")
 
 

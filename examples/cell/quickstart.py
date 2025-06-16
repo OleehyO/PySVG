@@ -12,9 +12,9 @@ This is a quick start guide for the Cell component, demonstrating the most commo
 7. Method chaining
 """
 
-from pysvg.components import Cell, CellConfig
-from pysvg.components.content import TextConfig, ImageConfig, SVGConfig
-from pysvg.schema import AppearanceConfig, Color, SVGCode
+from pysvg.components import Cell, CellConfig, Circle, CircleConfig
+from pysvg.components.content import TextConfig, ImageConfig, ImageContent
+from pysvg.schema import AppearanceConfig, Color
 from pysvg.components.canvas import Canvas
 from pysvg.components.content import TextContent
 
@@ -30,7 +30,7 @@ def basic_examples():
     # 2. Cell with appearance
     styled_cell = Cell(
         config=CellConfig(width=100, height=50),
-        rectangle_appearance=AppearanceConfig(
+        appearance=AppearanceConfig(
             fill=Color(value="lightblue"), stroke=Color(value="navy"), stroke_width=2
         ),
     ).move(10, 20)
@@ -47,9 +47,11 @@ def content_examples():
         config=CellConfig(
             width=120,
             height=60,
-            text_content=TextConfig(text="Hello World", font_size=16, color=Color("darkblue")),
+            embed_component=TextContent(
+                config=TextConfig(text="Hello World", font_size=16, color=Color("darkblue"))
+            ),
         ),
-        rectangle_appearance=AppearanceConfig(
+        appearance=AppearanceConfig(
             fill=Color(value="lightcyan"), stroke=Color(value="blue"), stroke_width=1
         ),
     )
@@ -60,10 +62,10 @@ def content_examples():
         config=CellConfig(
             width=100,
             height=60,
-            image_content=ImageConfig(href="demo.png"),
-            content_padding=5,
+            embed_component=ImageContent(config=ImageConfig(href="demo.png")),
+            padding=5,
         ),
-        rectangle_appearance=AppearanceConfig(
+        appearance=AppearanceConfig(
             fill=Color(value="white"), stroke=Color(value="gray"), stroke_width=2
         ),
     ).move(130, 0)
@@ -74,13 +76,18 @@ def content_examples():
         config=CellConfig(
             width=100,
             height=60,
-            svg_content=SVGConfig(
-                svg_content=SVGCode(
-                    '<circle cx="40" cy="25" r="20" fill="red" stroke="darkred" stroke-width="2"/>'
-                )
+            embed_component=Circle(
+                config=CircleConfig(
+                    cx=40,
+                    cy=25,
+                    r=20,
+                ),
+                appearance=AppearanceConfig(
+                    fill=Color(value="red"), stroke=Color(value="darkred"), stroke_width=2
+                ),
             ),
         ),
-        rectangle_appearance=AppearanceConfig(
+        appearance=AppearanceConfig(
             fill=Color(value="lightyellow"), stroke=Color(value="orange"), stroke_width=2
         ),
     ).move(240, 0)
@@ -99,20 +106,20 @@ def styling_examples():
             height=50,
             rx=15,
             ry=15,  # Rounded corners
-            text_content=TextConfig(text="Rounded"),
+            embed_component=TextContent(config=TextConfig(text="Rounded")),
         ),
-        rectangle_appearance=AppearanceConfig(
-            fill=Color("coral"), stroke=Color("darkred"), stroke_width=2
-        ),
+        appearance=AppearanceConfig(fill=Color("coral"), stroke=Color("darkred"), stroke_width=2),
     ).move(0, 80)
     print(f"Rounded cell: {rounded_cell.to_svg_element()}")
 
     # 2. Transparent effect
     transparent_cell = Cell(
         config=CellConfig(
-            width=100, height=50, text_content=TextConfig(text="Transparent", color="black")
+            width=100,
+            height=50,
+            embed_component=TextContent(config=TextConfig(text="Transparent", color="black")),
         ),
-        rectangle_appearance=AppearanceConfig(
+        appearance=AppearanceConfig(
             fill=Color("skyblue"),
             fill_opacity=0.5,  # Semi-transparent
             stroke=Color("blue"),
@@ -123,8 +130,10 @@ def styling_examples():
 
     # 3. Dashed border
     dashed_cell = Cell(
-        config=CellConfig(width=100, height=50, text_content=TextConfig(text="Dashed")),
-        rectangle_appearance=AppearanceConfig(
+        config=CellConfig(
+            width=100, height=50, embed_component=TextContent(config=TextConfig(text="Dashed"))
+        ),
+        appearance=AppearanceConfig(
             fill=Color("lightgreen"),
             stroke=Color("green"),
             stroke_width=3,
@@ -141,7 +150,11 @@ def transform_examples():
 
     # 1. Translation
     moved_cell = Cell(
-        config=CellConfig(width=80, height=40, text_content=TextConfig(text="Moved", font_size=10)),
+        config=CellConfig(
+            width=80,
+            height=40,
+            embed_component=TextContent(config=TextConfig(text="Moved", font_size=10)),
+        ),
     ).move(150, 170)
     print(f"Moved cell: {moved_cell.to_svg_element()}")
 
@@ -149,7 +162,9 @@ def transform_examples():
     rotated_cell = (
         Cell(
             config=CellConfig(
-                width=80, height=40, text_content=TextConfig(text="Rotated", font_size=10)
+                width=80,
+                height=40,
+                embed_component=TextContent(config=TextConfig(text="Rotated", font_size=10)),
             ),
         )
         .move(50, 150)
@@ -161,7 +176,9 @@ def transform_examples():
     scaled_cell = (
         Cell(
             config=CellConfig(
-                width=80, height=40, text_content=TextConfig(text="Scaled", font_size=10)
+                width=80,
+                height=40,
+                embed_component=TextContent(config=TextConfig(text="Scaled", font_size=10)),
             ),
         )
         .scale(1.5)
@@ -180,11 +197,9 @@ def chaining_examples():
         config=CellConfig(
             width=100,
             height=50,
-            text_content=TextConfig(text="Chained"),
+            embed_component=TextContent(config=TextConfig(text="Chained")),
         ),
-        rectangle_appearance=AppearanceConfig(
-            fill=Color("purple"), stroke=Color("darkblue"), stroke_width=2
-        ),
+        appearance=AppearanceConfig(fill=Color("purple"), stroke=Color("darkblue"), stroke_width=2),
     )
 
     # Method chaining: move -> rotate -> scale
@@ -206,12 +221,10 @@ def utility_examples():
         config=CellConfig(
             width=100,
             height=60,
-            text_content=TextConfig(text="Test Cell"),
-            content_padding=10,
+            embed_component=TextContent(config=TextConfig(text="Test Cell")),
+            padding=10,
         ),
-        rectangle_appearance=AppearanceConfig(
-            fill=Color("lightblue"), stroke=Color("blue"), stroke_width=2
-        ),
+        appearance=AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue"), stroke_width=2),
     ).move(10, 300)
 
     # Test various utility methods
@@ -224,7 +237,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=600, height=100, viewbox=(0, 0, 550, 80))
+    canvas = Canvas(width=512, height=120)
 
     # Add labels
     labels = [("Basic", 70), ("Text", 200), ("Rounded", 330), ("Rotated", 450)]
@@ -232,15 +245,13 @@ def generate_demo_svg():
     for text, x in labels:
         label = TextContent(
             config=TextConfig(
-                x=x,
-                y=100,
                 text=text,
-                font_size=10,
+                font_size=20,
                 font_family="Arial",
                 color=Color("gray"),
                 text_anchor="middle",
             )
-        )
+        ).move(x, 100)
         canvas.add(label)
 
     # Create example cells
@@ -248,17 +259,17 @@ def generate_demo_svg():
         # Basic example
         Cell(
             config=CellConfig(width=100, height=50),
-            rectangle_appearance=AppearanceConfig(fill="lightgray", stroke="black"),
-        ).move(20, 20),
+            appearance=AppearanceConfig(fill="lightgray", stroke="black"),
+        ).move(70, 50),
         # Text cell
         Cell(
             config=CellConfig(
                 width=120,
                 height=50,
-                text_content=TextConfig(text="Text Cell", font_size=14),
+                embed_component=TextContent(config=TextConfig(text="Text Cell", font_size=14)),
             ),
-            rectangle_appearance=AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue")),
-        ).move(140, 20),
+            appearance=AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue")),
+        ).move(200, 50),
         # Rounded cell
         Cell(
             config=CellConfig(
@@ -266,16 +277,18 @@ def generate_demo_svg():
                 height=50,
                 rx=15,
                 ry=15,
-                text_content=TextConfig(text="Rounded"),
+                embed_component=TextContent(config=TextConfig(text="Rounded")),
             ),
-            rectangle_appearance=AppearanceConfig(fill=Color("lightgreen"), stroke=Color("green")),
-        ).move(280, 20),
+            appearance=AppearanceConfig(fill=Color("lightgreen"), stroke=Color("green")),
+        ).move(330, 50),
         # Rotated cell
         Cell(
-            config=CellConfig(width=100, height=50, text_content=TextConfig(text="Rotated")),
-            rectangle_appearance=AppearanceConfig(fill=Color("lightcoral"), stroke=Color("red")),
+            config=CellConfig(
+                width=100, height=50, embed_component=TextContent(config=TextConfig(text="Rotated"))
+            ),
+            appearance=AppearanceConfig(fill=Color("lightcoral"), stroke=Color("red")),
         )
-        .move(400, 20)
+        .move(450, 50)
         .rotate(15),
     ]
 

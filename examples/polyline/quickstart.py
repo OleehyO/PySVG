@@ -192,7 +192,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=590, height=290, viewbox=(50, 30, 590, 290))
+    canvas = Canvas(width=590, height=290, viewbox=(50, 30, 510, 290))
 
     # Create example polylines
     polylines = []
@@ -398,7 +398,7 @@ def generate_demo_svg():
             ),
         )
         .rotate(30)
-        .move(420, 230)
+        .move(440, 250)
     )
     polylines.append(rotated_rect)
 
@@ -411,7 +411,7 @@ def generate_demo_svg():
             ),
         )
         .scale(2.0)
-        .move(520, 230)
+        .move(530, 240)
     )
     polylines.append(scaled_triangle)
 

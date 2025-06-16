@@ -52,19 +52,6 @@ class Canvas(BaseSVGComponent):
         super().__init__(config=config)
         self.components: List[BaseSVGComponent] = []
 
-    def add(self, component: BaseSVGComponent) -> "Canvas":
-        """
-        Add a component to the canvas.
-
-        Args:
-            component: The SVG component to add
-
-        Returns:
-            Self for method chaining
-        """
-        self.components.append(component)
-        return self
-
     @property
     @override
     def central_point_relative(self) -> Tuple[float, float]:
@@ -110,6 +97,19 @@ class Canvas(BaseSVGComponent):
         svg += "</svg>"
 
         return svg
+
+    def add(self, component: BaseSVGComponent) -> "Canvas":
+        """
+        Add a component to the canvas.
+
+        Args:
+            component: The SVG component to add
+
+        Returns:
+            Self for method chaining
+        """
+        self.components.append(component)
+        return self
 
     def save(self, file_path: str | Path) -> None:
         """

@@ -130,7 +130,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=460, height=230, viewbox=(40, 30, 420, 200))
+    canvas = Canvas(width=440, height=210)
 
     # Create example rectangles
     rectangles = [
@@ -140,28 +140,28 @@ def generate_demo_svg():
             appearance=AppearanceConfig(
                 fill=Color("lightgray"), stroke=Color("black"), stroke_width=2
             ),
-        ).move(50, 50),
+        ).move(70, 50),
         # Styled rectangle
         Rectangle(
             config=RectangleConfig(width=100, height=50),
             appearance=AppearanceConfig(
                 fill=Color("lightblue"), stroke=Color("navy"), stroke_width=2
             ),
-        ).move(200, 50),
+        ).move(220, 50),
         # Rounded rectangle
         Rectangle(
             config=RectangleConfig(width=100, height=50, rx=15, ry=15),
             appearance=AppearanceConfig(
                 fill=Color("lightgreen"), stroke=Color("green"), stroke_width=2
             ),
-        ).move(350, 50),
+        ).move(370, 50),
         # Semi-transparent rectangle
         Rectangle(
             config=RectangleConfig(width=100, height=50),
             appearance=AppearanceConfig(
                 fill=Color("coral"), fill_opacity=0.5, stroke=Color("red"), stroke_width=2
             ),
-        ).move(50, 150),
+        ).move(70, 150),
         # Rotated rectangle
         Rectangle(
             config=RectangleConfig(width=100, height=50),
@@ -170,7 +170,7 @@ def generate_demo_svg():
             ),
         )
         .rotate(30)
-        .move(200, 150),
+        .move(220, 150),
         # Dashed rectangle
         Rectangle(
             config=RectangleConfig(width=100, height=50),
@@ -180,7 +180,7 @@ def generate_demo_svg():
                 stroke_width=2,
                 stroke_dasharray=[5, 3],
             ),
-        ).move(350, 150),
+        ).move(370, 150),
     ]
 
     # Add rectangles to canvas

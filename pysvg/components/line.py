@@ -49,8 +49,8 @@ class Line(BaseSVGComponent):
     @override
     def get_bounding_box(self) -> BBox:
         return BBox(
-            x=min(self.config.x1, self.config.x2),
-            y=min(self.config.y1, self.config.y2),
+            x=self.transform.translate[0] + min(self.config.x1, self.config.x2),
+            y=self.transform.translate[1] + min(self.config.y1, self.config.y2),
             width=abs(self.config.x2 - self.config.x1),
             height=abs(self.config.y2 - self.config.y1),
         )

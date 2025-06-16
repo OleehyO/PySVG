@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Literal, Tuple
 from typing_extensions import override
 
@@ -6,11 +5,11 @@ from pydantic import Field
 
 from pysvg.components.base import BaseSVGComponent, ComponentConfig
 from pysvg.components.cell import Cell, CellConfig
-from pysvg.components.content import ImageConfig, SVGConfig, TextConfig, TextContent
-from pysvg.schema import AppearanceConfig, Color, SVGCode, TransformConfig, BBox
+from pysvg.components.content import TextConfig, TextContent
+from pysvg.schema import AppearanceConfig, Color, TransformConfig, BBox
 
 # Define matrix element data type
-MatElemType = str | int | float | Path | SVGCode
+MatElemType = str | int | float
 
 # Define border position type
 BorderPosition = Literal["upperleft", "upperright", "lowerleft", "lowerright"]
@@ -23,7 +22,6 @@ class MatrixConfig(ComponentConfig):
     y: float = Field(default=0, description="Matrix y position")
     cell_size: float = Field(default=50, ge=1, description="Size of each cell")
     cell_padding: float = Field(default=5, ge=0, description="Padding inside each cell")
-    caption_margin: float = Field(default=20, ge=0, description="Margin between matrix and caption")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
@@ -38,43 +36,60 @@ class Matrix(BaseSVGComponent):
     def __init__(
         self,
         data: list[list[MatElemType]],
-        element_map: dict[MatElemType, MatElemType] | None = None,
-        appearance_matrix: list[list[AppearanceConfig]] | None = None,
-        element_appearance_map: dict[MatElemType, AppearanceConfig] | None = None,
-        caption: TextContent | None = None,
-        caption_location: Literal["top", "down", "left", "right"] | None = None,
-        border_as_number: BorderPosition | None = None,
-        coord_font_size: float | None = None,
-        coord_font_family: str | None = None,
-        coord_color: Color | None = None,
         config: MatrixConfig | None = None,
         transform: TransformConfig | None = None,
+        element_map: dict[MatElemType, BaseSVGComponent] = {},
+        background_map: dict[MatElemType, AppearanceConfig] = {},
+        caption: str | None = None,
+        caption_location: Literal["top", "down", "left", "right"] | None = None,
+        caption_margin: float = 20,
+        caption_font_size: float = 16,
+        caption_font_family: str = "Arial",
+        caption_font_color: Color = Color("black"),
+        border_as_number: BorderPosition | None = None,
+        coord_font_size: float = 16,
+        coord_font_family: str = "Arial",
+        coord_font_color: Color = Color("black"),
     ):
-        """
-        Initialize Matrix component
+        """Creates a Matrix component for visualizing 2D data in SVG format.
+
+        This component allows you to create a matrix visualization where each element can be
+        customized with different content and appearance. It supports features like captions
+        and border numbering for better data representation.
 
         Args:
-            data: 2D list, each element is one of Path/str/SVGCode
-            element_map: Element mapping, replaces corresponding elements in data
-            appearance_matrix: 2D list of AppearanceConfig, sets appearance for each cell
-            element_appearance_map: Element appearance mapping, sets appearance based on element content
-            caption: Text description
-            caption_location: Description position
-            border_as_number: Border position, specifies which corner's rows and columns are used for coordinate labeling
-            coord_font_size: Font size for coordinate labels
-            coord_font_family: Font family for coordinate labels
-            coord_color: Color for coordinate labels
-            config: Matrix configuration
-            transform: Transform configuration
+            data (list[list[MatElemType]]): 2D list containing the matrix data. Must be rectangular
+                (all rows must have the same length). Elements can be strings, integers, or floats.
+            config (MatrixConfig | None, optional): Configuration for the matrix component.
+                Defaults to MatrixConfig().
+            transform (TransformConfig | None, optional): Transform configuration for the matrix.
+                Defaults to TransformConfig().
+            element_map (dict[MatElemType, BaseSVGComponent] | None, optional): Maps matrix elements
+                to their visual representations. If None, elements are displayed as text.
+            background_map (dict[MatElemType, AppearanceConfig] | None, optional): Maps matrix elements
+                to their cell background appearances. If None, cells have transparent background.
+            caption (str | None, optional): Caption text for the matrix. Must be provided if
+                caption_location is set.
+            caption_location (Literal["top", "down", "left", "right"] | None, optional): Position of
+                the caption relative to the matrix. Must be provided if caption is set.
+            caption_margin (float, optional): Space between caption and matrix. Defaults to 20.
+            caption_font_size (float, optional): Font size for caption text. Defaults to 16.
+            caption_font_family (str, optional): Font family for caption text. Defaults to "Arial".
+            caption_font_color (Color, optional): Color for caption text. Defaults to black.
+            border_as_number (BorderPosition | None, optional): Position for displaying row/column
+                numbers. Can be "upperleft", "upperright", "lowerleft", or "lowerright".
+            coord_font_size (float, optional): Font size for border numbers. Defaults to 16.
+            coord_font_family (str, optional): Font family for border numbers. Defaults to "Arial".
+            coord_font_color (Color, optional): Color for border numbers. Defaults to black.
+
+        Raises:
+            ValueError: If the matrix data is not rectangular, or if caption and caption_location
+                are not properly paired (both must be either set or None).
         """
         super().__init__(
-            config=config if config else MatrixConfig(),
-            transform=transform if transform else TransformConfig(),
+            config=config or MatrixConfig(),
+            transform=transform or TransformConfig(),
         )
-
-        # Validate data validity
-        if not data or not all(data):
-            raise ValueError("Matrix data cannot be empty")
 
         # Verify matrix is rectangular
         rows = len(data)
@@ -88,47 +103,38 @@ class Matrix(BaseSVGComponent):
         if caption_location is not None and caption is None:
             raise ValueError("caption must be provided when caption_location is specified")
 
-        # Validate appearance_matrix shape
-        if appearance_matrix is not None:
-            if len(appearance_matrix) != rows or not all(
-                len(row) == cols for row in appearance_matrix
-            ):
-                raise ValueError("appearance_matrix must have the same shape as data")
-
-        # Store data and configuration
-        self._data = data
-        self._element_map = element_map or {}
-        self._appearance_matrix = appearance_matrix
-        self._element_appearance_map = element_appearance_map or {}
-        self._caption = caption
-        self._caption_location = caption_location
-
         # Matrix properties
         self._rows = rows
         self._cols = cols
+        self._data = data
 
-        # Font settings
-        self._font_family: str = "Arial"
-        self._font_size: float = 12
-        self._font_color: Color = Color("black")
+        # Store element and background maps
+        self._element_map = element_map
+        self._background_map = background_map
 
-        # Global appearance settings
-        self._global_appearance: AppearanceConfig | None = None
+        # Caption related settings
+        self._caption = (
+            TextContent(
+                config=TextConfig(
+                    text=caption,
+                    font_size=caption_font_size,
+                    font_family=caption_font_family,
+                    color=caption_font_color,
+                    text_anchor="middle",
+                    dominant_baseline="central",
+                )
+            )
+            if caption
+            else None
+        )
+        self._caption_location = caption_location
+        self._caption_margin = caption_margin
 
         # border_as_number related settings
         self._border_position: BorderPosition | None = border_as_number
-        self._coord_font_size: float = coord_font_size if coord_font_size is not None else 16
-        self._coord_font_family: str = (
-            coord_font_family if coord_font_family is not None else "Arial"
-        )
-        self._coord_color: Color = coord_color if coord_color is not None else Color("black")
-
-        # Validate border elements (if border_as_number is set)
-        if self._border_position is not None:
-            self._validate_border_elements(self._border_position)
-
-        # Create cells
-        self._create_cells()
+        self._coord_font_size: float = coord_font_size
+        self._coord_font_family: str = coord_font_family
+        self._coord_color: Color = coord_font_color
 
     @override
     @property
@@ -175,13 +181,13 @@ class Matrix(BaseSVGComponent):
         max_y = self.config.y + matrix_height
 
         # Consider caption position
-        if self._caption is not None and self._caption_location is not None:
+        if self._caption is not None:
             max_y += self.config.caption_margin
             max_x += self.config.caption_margin
 
         return BBox(
-            x=min_x,
-            y=min_y,
+            x=self.transform.translate[0] + min_x,
+            y=self.transform.translate[1] + min_y,
             width=max_x - min_x,
             height=max_y - min_y,
         )
@@ -189,6 +195,8 @@ class Matrix(BaseSVGComponent):
     @override
     def to_svg_element(self) -> str:
         elements = []
+
+        self._create_cells()
 
         # Add all cells
         for row_cells in self._cells:
@@ -215,121 +223,51 @@ class Matrix(BaseSVGComponent):
             for j in range(self._cols):
                 # Get actual element (considering mapping)
                 original_elem = self._data[i][j]
-                actual_elem = self._element_map.get(original_elem, original_elem)
+                actual_elem: BaseSVGComponent = self._element_map.get(
+                    original_elem, TextContent(config=TextConfig(text=str(original_elem)))
+                )
+                bg_appearance = self._background_map.get(
+                    original_elem, AppearanceConfig(fill=Color("none"), stroke=Color("black"))
+                )
 
-                # Calculate position (considering border adjustment)
-                cell_x, cell_y = self._get_border_cell_position(i, j)
+                if self._is_border_cell(i, j):
+                    bg_appearance = AppearanceConfig(
+                        fill=Color("none"), stroke=Color("none"), stroke_width=0
+                    )
+                    if isinstance(actual_elem, TextContent):
+                        actual_elem.config.color = self._coord_color
+                        actual_elem.config.font_size = self._coord_font_size
+                        actual_elem.config.font_family = self._coord_font_family
 
-                # Create cell configuration
-                cell_config = self._create_cell_config(cell_x, cell_y, actual_elem, i, j)
+                cell = Cell(
+                    config=CellConfig(
+                        embed_component=actual_elem,
+                        padding=self.config.cell_padding,
+                        width=self.config.cell_size,
+                        height=self.config.cell_size,
+                    ),
+                    appearance=bg_appearance,
+                )
+                cell.move(
+                    self.config.x + i * self.config.cell_size + self.config.cell_size / 2,
+                    self.config.y + j * self.config.cell_size + self.config.cell_size / 2,
+                )
 
-                # Get appearance configuration
-                appearance = self._get_cell_appearance(i, j, original_elem, actual_elem)
-
-                # Create cell
-                cell = Cell(config=cell_config, rectangle_appearance=appearance)
                 row_cells.append(cell)
 
             self._cells.append(row_cells)
 
-    def _create_cell_config(
-        self, x: float, y: float, elem: MatElemType, row: int, col: int
-    ) -> CellConfig:
-        """Create configuration for a single cell"""
-        cell_config = CellConfig(
-            x=x,
-            y=y,
-            width=self.config.cell_size,
-            height=self.config.cell_size,
-            content_padding=self.config.cell_padding,
-        )
-
-        # Check if it's a border cell
-        is_border = self._is_border_cell(row, col)
-
-        # Set content based on element type
-        if isinstance(elem, (str, int, float)):
-            # Text content
-            if is_border:
-                # Border elements use special font settings
-                cell_config.text_content = TextConfig(
-                    text=str(elem),
-                    font_family=self._coord_font_family,
-                    font_size=self._coord_font_size,
-                    color=self._coord_color,
-                    text_anchor="middle",
-                    dominant_baseline="central",
-                )
-            else:
-                # Regular elements use default font settings
-                cell_config.text_content = TextConfig(
-                    text=str(elem),
-                    font_family=self._font_family,
-                    font_size=self._font_size,
-                    color=self._font_color,
-                    text_anchor="middle",
-                    dominant_baseline="central",
-                )
-        elif isinstance(elem, Path):
-            # Image content
-            cell_config.image_content = ImageConfig(
-                href=str(elem), preserveAspectRatio="xMidYMid meet"
-            )
-        elif isinstance(elem, SVGCode):
-            # SVG content
-            cell_config.svg_content = SVGConfig(svg_content=elem)
-
-        return cell_config
-
-    def _get_cell_appearance(
-        self, row: int, col: int, original_elem: MatElemType, actual_elem: MatElemType
-    ) -> AppearanceConfig | None:
-        """Get appearance configuration for a single cell"""
-        # Priority: Border appearance (highest) > Global appearance > Element appearance mapping > Appearance matrix > Default
-
-        # 1. Border element appearance (highest priority)
-        if self._is_border_cell(row, col):
-            return AppearanceConfig(
-                fill=Color("none"),  # No fill
-                stroke=Color("none"),  # No border
-                stroke_width=0,
-            )
-
-        # 2. If global appearance is set, use it
-        if self._global_appearance is not None:
-            return self._global_appearance
-
-        # 3. Check element appearance mapping
-        if original_elem in self._element_appearance_map:
-            return self._element_appearance_map[original_elem]
-
-        # 4. Check appearance matrix
-        if self._appearance_matrix is not None:
-            return self._appearance_matrix[row][col]
-
-        # 5. For images and SVG content, reset to default appearance
-        if isinstance(actual_elem, (Path, SVGCode)):
-            return AppearanceConfig()  # Default appearance
-
-        return None
-
     def _render_caption(self) -> str:
-        """Render caption"""
+        """Convert caption to svg code"""
         if self._caption is None or self._caption_location is None:
-            return ""
+            raise ValueError(
+                "Caption is not set or caption_location is not set, but using _render_caption()"
+            )
+
+        self._caption.set_cpoint_to_lefttop()
 
         # Get matrix center point (considering border labeling effect)
-        center_x, center_y = self.central_point
-
-        # Get caption configuration, copy to avoid modifying original object
-        caption_config = TextConfig(
-            text=self._caption.config.text,
-            font_size=self._caption.config.font_size,
-            font_family=self._caption.config.font_family,
-            color=self._caption.config.color,
-            text_anchor="middle",
-            dominant_baseline="central",
-        )
+        center_x_relative, center_y_relative = self.central_point_relative
 
         # Calculate matrix boundaries (for determining caption offset)
         matrix_width = self._cols * self.config.cell_size
@@ -337,65 +275,21 @@ class Matrix(BaseSVGComponent):
 
         # Adjust coordinates based on position, using center point as reference
         if self._caption_location == "top":
-            caption_config.x = center_x
-            caption_config.y = (
-                self.config.y - self.config.caption_margin
-            )  # Offset upward from matrix top
+            self._caption.move(center_x_relative, self.config.y - self._caption_margin)
         elif self._caption_location == "down":
-            caption_config.x = center_x
-            caption_config.y = (
-                self.config.y + matrix_height + self.config.caption_margin
-            )  # Offset downward from matrix bottom
+            self._caption.move(
+                center_x_relative, self.config.y + matrix_height + self._caption_margin
+            )
         elif self._caption_location == "left":
-            caption_config.x = (
-                self.config.x - self.config.caption_margin
-            )  # Offset leftward from matrix left
-            caption_config.y = center_y
+            self._caption.config.text_anchor = "end"
+            self._caption.move(self.config.x - self._caption_margin, center_y_relative)
         elif self._caption_location == "right":
-            caption_config.x = (
-                self.config.x + matrix_width + self.config.caption_margin
-            )  # Offset rightward from matrix right
-            caption_config.y = center_y
+            self._caption.config.text_anchor = "start"
+            self._caption.move(
+                self.config.x + matrix_width + self._caption_margin, center_y_relative
+            )
 
-        # Create new TextContent object
-        positioned_caption = TextContent(config=caption_config)
-        return positioned_caption.to_svg_element()
-
-    def set_cell_size(self, size: float) -> "Matrix":
-        """Set size for all cells (will automatically adjust border element positions)"""
-        self.config.cell_size = size
-        self._create_cells()  # Recreate cells (including border element position adjustment)
-        return self
-
-    def set_pad(self, padding: float) -> "Matrix":
-        """Set padding between cell elements and borders"""
-        self.config.cell_padding = padding
-        self._create_cells()  # Recreate cells
-        return self
-
-    def set_global_appearance(self, appearance: AppearanceConfig) -> "Matrix":
-        """Set appearance for all cells (except border elements)"""
-        self._global_appearance = appearance
-        self._create_cells()  # Recreate cells
-        return self
-
-    def set_font_family(self, font_family: str) -> "Matrix":
-        """Set font family for all matrix elements that are str (except border elements)"""
-        self._font_family = font_family
-        self._create_cells()  # Recreate cells
-        return self
-
-    def set_font_size(self, font_size: float) -> "Matrix":
-        """Set font size for all matrix elements that are str (except border elements)"""
-        self._font_size = font_size
-        self._create_cells()  # Recreate cells
-        return self
-
-    def set_font_color(self, font_color: Color) -> "Matrix":
-        """Set font color for all matrix elements that are str (except border elements)"""
-        self._font_color = font_color
-        self._create_cells()  # Recreate cells
-        return self
+        return self._caption.to_svg_element()
 
     def _is_border_cell(self, row: int, col: int) -> bool:
         """Check if the cell at specified position is a border label cell"""
@@ -412,77 +306,3 @@ class Matrix(BaseSVGComponent):
             return row == self._rows - 1 or col == self._cols - 1
 
         return False
-
-    def _validate_border_elements(self, border_position: BorderPosition) -> None:
-        """Validate that border elements are all text content"""
-        border_cells = []
-
-        if border_position == "upperleft":
-            # First row and first column
-            border_cells.extend([(0, j) for j in range(self._cols)])  # First row
-            border_cells.extend(
-                [(i, 0) for i in range(1, self._rows)]
-            )  # First column (excluding duplicate (0,0))
-        elif border_position == "upperright":
-            # First row and last column
-            border_cells.extend([(0, j) for j in range(self._cols)])  # First row
-            border_cells.extend([(i, self._cols - 1) for i in range(1, self._rows)])  # Last column
-        elif border_position == "lowerleft":
-            # Last row and first column
-            border_cells.extend([(self._rows - 1, j) for j in range(self._cols)])  # Last row
-            border_cells.extend([(i, 0) for i in range(self._rows - 1)])  # First column
-        elif border_position == "lowerright":
-            # Last row and last column
-            border_cells.extend([(self._rows - 1, j) for j in range(self._cols)])  # Last row
-            border_cells.extend([(i, self._cols - 1) for i in range(self._rows - 1)])  # Last column
-
-        # Check that all border elements are text content
-        for row, col in border_cells:
-            original_elem = self._data[row][col]
-            actual_elem = self._element_map.get(original_elem, original_elem)
-            if not isinstance(actual_elem, (str, int, float)):
-                raise ValueError(
-                    f"Border element at ({row}, {col}) must be text content, got {type(actual_elem)}"
-                )
-
-    def _get_border_cell_position(self, row: int, col: int) -> Tuple[float, float]:
-        """Get adjusted position for border cells to make them closer to matrix borders"""
-        if not self._is_border_cell(row, col):
-            # Regular cell position
-            cell_x = self.config.x + col * self.config.cell_size
-            cell_y = self.config.y + row * self.config.cell_size
-            return (cell_x, cell_y)
-
-        # Border cell needs position adjustment
-        base_x = self.config.x + col * self.config.cell_size
-        base_y = self.config.y + row * self.config.cell_size
-
-        # Adjustment amount to make border elements closer to actual matrix
-        offset = self.config.cell_size * 0.1  # 10% of cell_size as offset
-
-        if self._border_position == "upperleft":
-            if row == 0 and col > 0:  # First row (except (0,0))
-                base_y += offset
-            elif col == 0 and row > 0:  # First column (except (0,0))
-                base_x += offset
-        elif self._border_position == "upperright":
-            if row == 0 and col < self._cols - 1:  # First row (except upper right corner)
-                base_y += offset
-            elif col == self._cols - 1 and row > 0:  # Last column (except upper right corner)
-                base_x -= offset
-        elif self._border_position == "lowerleft":
-            if row == self._rows - 1 and col > 0:  # Last row (except lower left corner)
-                base_y -= offset
-            elif col == 0 and row < self._rows - 1:  # First column (except lower left corner)
-                base_x += offset
-        elif self._border_position == "lowerright":
-            if (
-                row == self._rows - 1 and col < self._cols - 1
-            ):  # Last row (except lower right corner)
-                base_y -= offset
-            elif (
-                col == self._cols - 1 and row < self._rows - 1
-            ):  # Last column (except lower right corner)
-                base_x -= offset
-
-        return (base_x, base_y)

@@ -51,7 +51,7 @@ class BaseSVGComponent(ABC):
     @abstractmethod
     def get_bounding_box(self) -> BBox:
         """
-        Get the bounding box of the component.
+        Get the bounding box of the component using **absolute coordinates**.
         """
         raise NotImplementedError("Subclasses must implement this method")
 
@@ -127,6 +127,10 @@ class BaseSVGComponent(ABC):
         # Only apply scaling if we need to reduce the size
         if scale_factor < 1.0:
             self.scale(scale_factor)
+        else:
+            _logger.info(
+                f"Component {self.__class__.__name__} is already smaller than the maximum size"
+            )
 
         return self
 
@@ -134,19 +138,22 @@ class BaseSVGComponent(ABC):
         """Check if the component has any transforms."""
         return self.transform is not None and isinstance(self.transform, TransformConfig)
 
-    # Transform methods
-    def move(self, x: float, y: float) -> "BaseSVGComponent":
+    def move(self, cx: float, cy: float) -> "BaseSVGComponent":
         """
         Move the component to a specified position.
 
+        Note:
+            Coordinates are based on the central point of the component.
+
         Args:
-            x: X coordinate to move to
-            y: Y coordinate to move to
+            cx: central point x coordinate to move to
+            cy: central point y coordinate to move to
 
         Returns:
             Self for method chaining
         """
-        self.transform.translate = (x, y)
+        self.set_cpoint_to_lefttop()
+        self.move_by(cx, cy)
         return self
 
     def move_by(self, dx: float, dy: float) -> "BaseSVGComponent":
@@ -164,6 +171,16 @@ class BaseSVGComponent(ABC):
         new_x = current_translate[0] + dx
         new_y = current_translate[1] + dy
         self.transform.translate = (new_x, new_y)
+        return self
+
+    def set_cpoint_to_lefttop(self) -> "BaseSVGComponent":
+        """
+        Set the central point of the component to the left top corner
+        """
+        # cp_x, cp_y = self.central_point_relative
+        # self.move_by(-cp_x, -cp_y)
+        cp_x, cp_y = self.central_point
+        self.move_by(-cp_x, -cp_y)
         return self
 
     def rotate(
