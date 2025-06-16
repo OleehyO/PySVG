@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Literal, Tuple
 from pathlib import Path
 from pysvg.schema import ComponentConfig
 from pysvg.components.base import BaseSVGComponent, BBox
@@ -68,6 +68,17 @@ class Canvas(BaseSVGComponent):
             width=self.config.width,
             height=self.config.height,
         )
+
+    @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "Canvas":
+        ratio = min(width / self.config.width, height / self.config.height)
+        if mode == "fit" and ratio >= 1.0:
+            return self
+        self.config.width = self.config.width * ratio
+        self.config.height = self.config.height * ratio
+        return self
 
     @override
     def to_svg_element(self) -> str:

@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Literal, Tuple
 
 from pysvg.components.content import TextContent, TextConfig
 from pysvg.schema import AppearanceConfig, TransformConfig, BBox
@@ -84,6 +84,28 @@ class Cell(BaseSVGComponent):
         )
 
     @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "Cell":
+        self._rectangle.restrict_size(width, height, mode)
+
+        self.config.width = self._rectangle.config.width
+        self.config.height = self._rectangle.config.height
+        if self.config.rx is not None:
+            self.config.rx = self._rectangle.config.rx
+        if self.config.ry is not None:
+            self.config.ry = self._rectangle.config.ry
+
+        try:
+            self.config.embed_component.restrict_size(width, height, mode)
+        except (NotImplementedError, RuntimeWarning):
+            _logger.warning(
+                f"Can't restrict the size of the embedded component {self.config.embed_component.__class__.__name__}, "
+                "will keep the original size",
+            )
+        return self
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate the SVG element for the cell.
@@ -146,6 +168,8 @@ class Cell(BaseSVGComponent):
             )
 
         # Calculate the center position of the cell
+        # Note: Do not use self.central_point, otherwise when using cell.move,
+        #       embed_component will be moved twice (once in cell.move, once in embed_component.move)
         cell_center_x_relative, cell_center_y_relative = self.central_point_relative
 
         # Get the embedded component's bounding box after scaling

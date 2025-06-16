@@ -270,8 +270,8 @@ def generate_demo_svg():
     # # Add different position examples
     position_matrices = different_border_positions_example()
     canvas.add(position_matrices[0].move_by(0, 20 + 400))
-    canvas.add(position_matrices[1].move_by(250, 20 + 430))
-    canvas.add(position_matrices[2].move_by(500, 20 + 400))
+    canvas.add(position_matrices[1].move_by(250, 20 + 400))
+    canvas.add(position_matrices[2].move_by(500, 20 + 430))
     canvas.add(position_matrices[3].move_by(750, 20 + 430))
 
     # # Add game board example
