@@ -350,3 +350,4 @@ uv.lock
 **/*.svg
 
 !examples/**
+!assets/**
