@@ -162,7 +162,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=700, height=500)
+    canvas = Canvas(width=660, height=410)
 
     # Create example ellipses
     ellipses = [

@@ -192,7 +192,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=800, height=600)
+    canvas = Canvas(width=590, height=290)
 
     # Create example polylines
     polylines = []
@@ -220,17 +220,17 @@ def generate_demo_svg():
     star_outer = Polyline(
         config=PolylineConfig(
             points=[
-                (300, 50),
-                (310, 80),
-                (340, 80),
-                (320, 100),
-                (330, 130),
-                (300, 115),
-                (270, 130),
-                (280, 100),
-                (260, 80),
-                (290, 80),
-                (300, 50),
+                (300, 30),
+                (310, 60),
+                (340, 60),
+                (320, 80),
+                (330, 110),
+                (300, 95),
+                (270, 110),
+                (280, 80),
+                (260, 60),
+                (290, 60),
+                (300, 30),
             ]
         ),
         appearance=AppearanceConfig(
@@ -255,7 +255,7 @@ def generate_demo_svg():
                 (210, 180),
             ]
         ),
-        appearance=AppearanceConfig(stroke=Color("green"), stroke_width=3, fill=Color("none")),
+        appearance=AppearanceConfig(stroke=Color("lightgreen"), stroke_width=3, fill=Color("none")),
     )
     polylines.append(zigzag)
 
@@ -283,7 +283,7 @@ def generate_demo_svg():
     import math
 
     sine_points = []
-    for x in range(0, 200, 5):
+    for x in range(0, 100, 5):
         y = 250 + 30 * math.sin(x * math.pi / 50)
         sine_points.append((x + 50, y))
 
@@ -293,31 +293,19 @@ def generate_demo_svg():
     )
     polylines.append(sine_wave)
 
-    # Parabola
-    parabola_points = []
-    for x in range(-50, 51, 5):
-        y = 350 + (x * x) / 40
-        parabola_points.append((x + 350, y))
-
-    parabola = Polyline(
-        config=PolylineConfig(points=parabola_points),
-        appearance=AppearanceConfig(stroke=Color("darkorange"), stroke_width=2, fill=Color("none")),
-    )
-    polylines.append(parabola)
-
     # 4. Decorative patterns
     # Arrow
     arrow = Polyline(
         config=PolylineConfig(
             points=[
-                (500, 80),
-                (550, 80),
-                (550, 70),
-                (570, 85),
-                (550, 100),
-                (550, 90),
-                (500, 90),
-                (500, 80),
+                (400, 80),
+                (450, 80),
+                (450, 70),
+                (470, 85),
+                (450, 100),
+                (450, 90),
+                (400, 90),
+                (400, 80),
             ]
         ),
         appearance=AppearanceConfig(
@@ -330,17 +318,17 @@ def generate_demo_svg():
     heart = Polyline(
         config=PolylineConfig(
             points=[
-                (650, 90),
-                (640, 80),
-                (630, 80),
-                (620, 90),
-                (630, 100),
-                (650, 120),
-                (670, 100),
-                (680, 90),
-                (670, 80),
-                (660, 80),
-                (650, 90),
+                (550, 80),
+                (540, 70),
+                (530, 70),
+                (520, 80),
+                (530, 90),
+                (550, 110),
+                (570, 90),
+                (580, 80),
+                (570, 70),
+                (560, 70),
+                (550, 80),
             ]
         ),
         appearance=AppearanceConfig(
@@ -352,11 +340,11 @@ def generate_demo_svg():
     # 5. Complex patterns
     # Spiral approximation
     spiral_points = []
-    for i in range(0, 100, 2):
+    for i in range(0, 100, 1):
         angle = i * 0.3
         radius = i * 0.4
-        x = 150 + radius * math.cos(angle)
-        y = 450 + radius * math.sin(angle)
+        x = 210 + radius * math.cos(angle)
+        y = 250 + radius * math.sin(angle)
         spiral_points.append((x, y))
 
     spiral = Polyline(
@@ -367,7 +355,7 @@ def generate_demo_svg():
 
     # Flower shape
     flower_points = []
-    center_x, center_y = 400, 450
+    center_x, center_y = 320, 250
     for angle in range(0, 360, 15):
         # Alternating inner and outer radius to create petal effect
         radius = 40 if angle % 30 == 0 else 25
@@ -389,8 +377,8 @@ def generate_demo_svg():
     # Dashed wave
     wave_points = []
     for x in range(0, 180, 5):
-        y = 200 + 20 * math.sin(x * math.pi / 30)
-        wave_points.append((x + 500, y))
+        y = 170 + 20 * math.sin(x * math.pi / 30)
+        wave_points.append((x + 400, y))
 
     dashed_wave = Polyline(
         config=PolylineConfig(points=wave_points),
@@ -410,7 +398,7 @@ def generate_demo_svg():
             ),
         )
         .rotate(30)
-        .move(450, 250)
+        .move(420, 230)
     )
     polylines.append(rotated_rect)
 
@@ -423,7 +411,7 @@ def generate_demo_svg():
             ),
         )
         .scale(2.0)
-        .move(50, 350)
+        .move(520, 230)
     )
     polylines.append(scaled_triangle)
 

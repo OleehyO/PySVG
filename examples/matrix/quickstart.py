@@ -253,7 +253,7 @@ def generate_demo_svg():
     print("=== Generating Demo SVG ===")
 
     # Create canvas
-    canvas = Canvas(width=800, height=1200)
+    canvas = Canvas(width=710, height=480)
 
     # 1. Basic numeric matrix
     simple_data = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]

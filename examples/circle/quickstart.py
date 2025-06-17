@@ -2,11 +2,11 @@
 """
 Circle Component Quick Start Guide
 
-这是Circle组件的快速入门指南，展示最常用的功能：
-1. 基础创建
-2. 外观定制
-3. 基础变换
-4. 获取圆形信息
+This is a quick start guide for the Circle component, demonstrating the most common features:
+1. Basic Creation
+2. Appearance Customization
+3. Basic Transformations
+4. Getting Circle Information
 """
 
 from pysvg.components import Canvas, Circle, CircleConfig
@@ -14,74 +14,74 @@ from pysvg.schema import AppearanceConfig, Color
 
 
 def basic_examples():
-    """基础使用示例"""
-    print("=== 基础使用示例 ===")
+    """Basic usage examples"""
+    print("=== Basic Usage Examples ===")
 
-    # 1. 创建基础圆形
+    # 1. Create a basic circle
     basic_circle = Circle(config=CircleConfig(r=50))
-    print(f"基础圆形: {basic_circle.to_svg_element()}")
+    print(f"Basic circle: {basic_circle.to_svg_element()}")
 
-    # 2. 指定位置的圆形
+    # 2. Circle with specified position
     positioned_circle = Circle(config=CircleConfig(cx=100, cy=100, r=30))
-    print(f"定位圆形: {positioned_circle.to_svg_element()}")
+    print(f"Positioned circle: {positioned_circle.to_svg_element()}")
     print()
 
 
 def styling_examples():
-    """样式示例"""
-    print("=== 样式示例 ===")
+    """Styling examples"""
+    print("=== Styling Examples ===")
 
-    # 1. 带颜色和边框的圆形
+    # 1. Circle with color and border
     styled_circle = Circle(
         config=CircleConfig(r=40),
         appearance=AppearanceConfig(fill=Color("lightblue"), stroke=Color("navy"), stroke_width=3),
     )
-    print(f"样式圆形: {styled_circle.to_svg_element()}")
+    print(f"Styled circle: {styled_circle.to_svg_element()}")
 
-    # 2. 半透明圆形
+    # 2. Semi-transparent circle
     transparent_circle = Circle(
         config=CircleConfig(r=35),
         appearance=AppearanceConfig(
             fill=Color("skyblue"), fill_opacity=0.6, stroke=Color("blue"), stroke_width=2
         ),
     )
-    print(f"透明圆形: {transparent_circle.to_svg_element()}")
+    print(f"Transparent circle: {transparent_circle.to_svg_element()}")
 
-    # 3. 虚线边框圆形
+    # 3. Circle with dashed border
     dashed_circle = Circle(
         config=CircleConfig(r=30),
         appearance=AppearanceConfig(
             fill=Color("lightgreen"), stroke=Color("green"), stroke_width=3, stroke_dasharray=[8, 4]
         ),
     )
-    print(f"虚线圆形: {dashed_circle.to_svg_element()}")
+    print(f"Dashed circle: {dashed_circle.to_svg_element()}")
 
-    # 4. 仅边框圆形（无填充）
+    # 4. Outline-only circle (no fill)
     outline_circle = Circle(
         config=CircleConfig(r=25),
         appearance=AppearanceConfig(fill=Color("none"), stroke=Color("red"), stroke_width=2),
     )
-    print(f"轮廓圆形: {outline_circle.to_svg_element()}")
+    print(f"Outline circle: {outline_circle.to_svg_element()}")
     print()
 
 
 def transform_examples():
-    """变换示例"""
-    print("=== 变换示例 ===")
+    """Transformation examples"""
+    print("=== Transformation Examples ===")
 
-    # 1. 平移
+    # 1. Translation
     moved_circle = Circle(
         config=CircleConfig(r=30),
     ).move(80, 60)
-    print(f"平移圆形: {moved_circle.to_svg_element()}")
+    print(f"Translated circle: {moved_circle.to_svg_element()}")
 
-    # 2. 缩放
+    # 2. Scaling
     scaled_circle = Circle(
         config=CircleConfig(r=20),
     ).scale(2.0)
-    print(f"缩放圆形: {scaled_circle.to_svg_element()}")
+    print(f"Scaled circle: {scaled_circle.to_svg_element()}")
 
-    # 3. 组合变换
+    # 3. Combined transformations
     combined_circle = (
         Circle(
             config=CircleConfig(r=25),
@@ -92,72 +92,72 @@ def transform_examples():
         .move(100, 50)
         .scale(1.5)
     )
-    print(f"组合变换圆形: {combined_circle.to_svg_element()}")
+    print(f"Combined transformed circle: {combined_circle.to_svg_element()}")
     print()
 
 
 def info_examples():
-    """获取圆形信息示例"""
-    print("=== 圆形信息示例 ===")
+    """Examples of getting circle information"""
+    print("=== Circle Information Examples ===")
 
     circle = Circle(config=CircleConfig(cx=50, cy=60, r=40))
 
-    # 1. 获取中心点
+    # 1. Get center point
     center = circle.central_point
-    print(f"圆形中心点: {center}")
+    print(f"Circle center point: {center}")
 
-    # 2. 获取边界框
+    # 2. Get bounding box
     bbox = circle.get_bounding_box()
-    print(f"圆形边界框 (min_x, min_y, max_x, max_y): {bbox}")
+    print(f"Circle bounding box (min_x, min_y, max_x, max_y): {bbox}")
 
-    # 3. 获取面积
+    # 3. Get area
     area = circle.get_area()
-    print(f"圆形面积: {area:.2f}")
+    print(f"Circle area: {area:.2f}")
 
-    # 4. 获取周长
+    # 4. Get circumference
     circumference = circle.get_circumference()
-    print(f"圆形周长: {circumference:.2f}")
+    print(f"Circle circumference: {circumference:.2f}")
     print()
 
 
 def generate_demo_svg():
-    """生成演示SVG文件"""
-    print("=== 生成演示SVG ===")
+    """Generate demo SVG file"""
+    print("=== Generate Demo SVG ===")
 
-    # 创建Canvas
-    canvas = Canvas(width=600, height=400)
+    # Create Canvas
+    canvas = Canvas(width=550, height=390)
 
-    # 创建示例圆形
+    # Create example circles
     circles = [
-        # 基础圆形
+        # Basic circle
         Circle(
             config=CircleConfig(r=30),
             appearance=AppearanceConfig(
                 fill=Color("lightgray"), stroke=Color("black"), stroke_width=2
             ),
         ).move(80, 80),
-        # 样式圆形
+        # Styled circle
         Circle(
             config=CircleConfig(r=35),
             appearance=AppearanceConfig(
                 fill=Color("lightblue"), stroke=Color("navy"), stroke_width=3
             ),
         ).move(200, 80),
-        # 渐变效果圆形（使用半透明）
+        # Gradient effect circle (using semi-transparency)
         Circle(
             config=CircleConfig(r=40),
             appearance=AppearanceConfig(
                 fill=Color("coral"), fill_opacity=0.7, stroke=Color("red"), stroke_width=2
             ),
         ).move(350, 80),
-        # 大圆形
+        # Large circle
         Circle(
             config=CircleConfig(r=45),
             appearance=AppearanceConfig(
                 fill=Color("lightgreen"), stroke=Color("green"), stroke_width=3
             ),
         ).move(500, 80),
-        # 虚线圆形
+        # Dashed circle
         Circle(
             config=CircleConfig(r=30),
             appearance=AppearanceConfig(
@@ -167,19 +167,19 @@ def generate_demo_svg():
                 stroke_dasharray=[10, 5],
             ),
         ).move(80, 200),
-        # 仅轮廓圆形
+        # Outline-only circle
         Circle(
             config=CircleConfig(r=35),
             appearance=AppearanceConfig(fill=Color("none"), stroke=Color("purple"), stroke_width=4),
         ).move(200, 200),
-        # 缩放圆形
+        # Scaled circle
         Circle(
             config=CircleConfig(r=20),
             appearance=AppearanceConfig(fill=Color("gold"), stroke=Color("orange"), stroke_width=2),
         )
         .scale(1.8)
         .move(350, 200),
-        # 小圆形组合
+        # Small circle combination
         Circle(
             config=CircleConfig(r=15),
             appearance=AppearanceConfig(
@@ -198,14 +198,14 @@ def generate_demo_svg():
                 fill=Color("lavender"), stroke=Color("indigo"), stroke_width=1
             ),
         ).move(500, 220),
-        # 大型半透明圆形作为背景
+        # Large semi-transparent circle as background
         Circle(
             config=CircleConfig(r=60),
             appearance=AppearanceConfig(
                 fill=Color("yellow"), fill_opacity=0.3, stroke=Color("orange"), stroke_width=1
             ),
         ).move(150, 320),
-        # 中等圆形
+        # Medium circles
         Circle(
             config=CircleConfig(r=25),
             appearance=AppearanceConfig(
@@ -220,18 +220,18 @@ def generate_demo_svg():
         ).move(450, 320),
     ]
 
-    # 将圆形添加到canvas
+    # Add circles to canvas
     for circle in circles:
         canvas.add(circle)
 
-    # 生成SVG文件
+    # Generate SVG file
     canvas.save("quickstart.svg")
 
-    print("已生成演示文件: quickstart.svg")
+    print("Demo file generated: quickstart.svg")
 
 
 def main():
-    """主函数"""
+    """Main function"""
     print("Circle Component Quick Start Guide")
     print("=" * 40)
 
@@ -242,8 +242,8 @@ def main():
     generate_demo_svg()
 
     print("=" * 40)
-    print("快速入门指南完成！")
-    print("查看生成的 quickstart.svg 文件。")
+    print("Quick Start Guide completed!")
+    print("Check the generated quickstart.svg file.")
 
 
 if __name__ == "__main__":

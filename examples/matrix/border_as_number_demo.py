@@ -249,7 +249,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create canvas
-    canvas = Canvas(width=1200, height=1400)
+    canvas = Canvas(width=1020, height=640)
 
     # Add title
     title = TextContent(
