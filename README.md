@@ -71,7 +71,8 @@ The Matrix component also supports border styling with numbers or labels, making
 ## Installation
 
 ```bash
-# Installation instructions will be added
+pip install uv
+uv pip install svg-python
 ```
 
 ## Quick Start
