@@ -3,7 +3,7 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pysvg"
+name = "svg-python"
 dynamic = ["version"]
 readme = "README.md"
 license = { file = "LICENSE" }
