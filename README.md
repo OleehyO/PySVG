@@ -78,7 +78,7 @@ The Matrix component also supports border styling with numbers or labels, making
 
 All components are located in the `pysvg/components` directory. For detailed usage examples of each component, please check the corresponding examples in the `examples` directory.
 
-The `apps` directory contains more complex examples, including the project logo ([`apps/house.py`](apps/house.py)) shown above.
+The `apps` directory contains more complex examples, including the project logo (`apps/house.py`) shown above.
 
 ## Contributing
 
