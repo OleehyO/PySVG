@@ -1,0 +1,41 @@
+name: PR Welcome Bot
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post Welcome Comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.issue.number;
+            const prAuthor = context.payload.pull_request.user.login;
+
+            const welcomeMessage = `
+            👋 Hello @${prAuthor}, thank you for contributing to this project! 🎉
+
+            We've received your Pull Request and the team will review it as soon as possible.
+
+            In the meantime, please ensure:
+            - [ ] Your code follows the project's coding style
+            - [ ] Relevant tests have been added and are passing
+            - [ ] Documentation has been updated if needed
+
+            If you have any questions, feel free to ask here. Happy coding! 😊
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: welcomeMessage
+            });
