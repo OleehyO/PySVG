@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg width="800.0" height="300.0" viewBox="0 0 800.0 300.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <text x="100.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="start" dominant-baseline="central" fill="purple" transform="translate(0,0) rotate(0,0,0) skewX(0) skewY(0)">Left aligned</text>
-    <text x="400.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="middle" dominant-baseline="central" fill="green" transform="translate(0,0) rotate(0,0,0) skewX(0) skewY(0)">Center aligned</text>
-    <text x="700.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="end" dominant-baseline="central" fill="red" transform="translate(0,0) rotate(0,0,0) skewX(0) skewY(0)">Right aligned</text>
-    <image x="100.0" y="150.0" width="150.0" height="150.0" preserveAspectRatio="xMidYMid meet" transform="translate(0,0) rotate(0,0,0) skewX(0) skewY(0)" href="demo.png" />
-    <image x="325.0" y="150.0" width="150.0" height="150.0" preserveAspectRatio="xMidYMid meet" transform="translate(0,0) rotate(45,400.0,225.0) skewX(0) skewY(0)" href="demo.png" />
-    <image x="550.0" y="150.0" width="150.0" height="150.0" preserveAspectRatio="xMidYMid slice" transform="translate(0,0) rotate(0,0,0) skewX(0) skewY(0)" href="demo.svg" />
+    <text x="100.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="start" dominant-baseline="central" fill="purple">Left aligned</text>
+    <text x="400.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="middle" dominant-baseline="central" fill="green">Center aligned</text>
+    <text x="700.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="end" dominant-baseline="central" fill="red">Right aligned</text>
+    <image x="100.0" y="150.0" width="150.0" height="150.0" preserveAspectRatio="xMidYMid meet" href="demo.png" />
+    <image x="325.0" y="150.0" width="150.0" height="150.0" preserveAspectRatio="xMidYMid meet" transform="rotate(45,400.0,225.0)" href="demo.png" />
+    <image x="550.0" y="150.0" width="150.0" height="150.0" preserveAspectRatio="xMidYMid slice" href="demo.svg" />
 </svg>

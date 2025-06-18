@@ -115,18 +115,35 @@ class BaseSVGComponent(ABC):
         Get the attributes of the component as a dictionary.
         """
         attr = {}
-        if hasattr(self, "config") and isinstance(self.config, ComponentConfig):
+        if self.has_config():
             attr.update(self.config.to_svg_dict())
-        if hasattr(self, "appearance") and isinstance(self.appearance, AppearanceConfig):
+        if self.has_appearance():
             attr.update(self.appearance.to_svg_dict())
-        if hasattr(self, "transform") and isinstance(self.transform, TransformConfig):
+        if self.has_transform():
             attr.update(self.transform.to_svg_dict())
         attr = {k: str(v) for k, v in attr.items()}
         return attr
 
+    def get_attr_str(self) -> str:
+        """Get the attributes of the component as a string."""
+        attr = self.get_attr_dict()
+        return " ".join([f'{k}="{v}"' for k, v in attr.items() if v is not None])
+
+    def has_config(self) -> bool:
+        """Check if the component has a config."""
+        return hasattr(self, "config") and isinstance(self.config, ComponentConfig)
+
+    def has_appearance(self) -> bool:
+        """Check if the component has an appearance."""
+        return hasattr(self, "appearance") and isinstance(self.appearance, AppearanceConfig)
+
     def has_transform(self) -> bool:
         """Check if the component has any transforms."""
-        return self.transform is not None and isinstance(self.transform, TransformConfig)
+        return (
+            self.transform is not None
+            and isinstance(self.transform, TransformConfig)
+            and self.transform.have_set()
+        )
 
     def move(self, cx: float, cy: float) -> "BaseSVGComponent":
         """

@@ -49,13 +49,13 @@ Here are some examples of good commit messages:
 **Example 1: A simple feature**
 
 ```
-[feat]: Add user profile page
+[feat] Add user profile page
 ```
 
 **Example 2: A fix with a detailed body**
 
 ```
-[fix]: Prevent crash when processing invalid SVG file
+[fix] Prevent crash when processing invalid SVG file
 
 The application would previously crash if the input file was missing
 a closing SVG tag. This change adds error handling to gracefully
@@ -64,11 +64,11 @@ reject the file and notify the user.
 **Example 3: A chore task**
 
 ```
-[chore]: Update project dependencies via uv pip sync
+[chore] Update project dependencies via uv pip sync
 ```
 
 **Example 4: A documentation change**
 
 ```
-[docs]: Improve installation instructions in README
+[docs] Improve installation instructions in README
 ```

@@ -1,5 +1,6 @@
 from typing import List, Literal, Tuple
 from pathlib import Path
+from pysvg.constants import INDENT
 from pysvg.schema import ComponentConfig
 from pysvg.components.base import BaseSVGComponent, BBox
 from pysvg.utils import resolve_path, mkdir
@@ -89,23 +90,12 @@ class Canvas(BaseSVGComponent):
             Complete SVG element as XML string
         """
         # Start with XML declaration and SVG opening tag with namespace and viewBox
-        svg_attrs = self.get_attr_dict()
+        attrs = self.get_attr_str()
 
-        # Convert attributes to string
-        attrs_str = " ".join([f'{k}="{v}"' for k, v in svg_attrs.items() if v is not None])
-
-        # Start with XML declaration
-        svg = '<?xml version="1.0" encoding="UTF-8"?>\n'
-
-        # Add SVG tag
-        svg += f"<svg {attrs_str}>\n"
-
-        # Add all child components
-        for component in self.components:
-            svg += f"    {component.to_svg_element()}\n"
+        components_code = "\n".join([component.to_svg_element() for component in self.components])
 
         # Close SVG tag
-        svg += "</svg>"
+        svg = f"<svg {attrs}>\n{components_code}".replace("\n", "\n" + INDENT) + "\n</svg>"
 
         return svg
 

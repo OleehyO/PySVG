@@ -4,9 +4,23 @@ from abc import abstractmethod, ABC
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing_extensions import override
 
+from .color import Color
 from pysvg.constants import SVG_NONE
 
-from .color import Color
+# NOTE: DO NOT CHANGE THESE DEFAULT VALUES
+TRANSLATE_DEFAULT = (0, 0)
+ROTATE_DEFAULT = (0, 0, 0)
+SKEW_X_DEFAULT = 0
+SKEW_Y_DEFAULT = 0
+
+FILL_DEFAULT = Color(SVG_NONE)
+FILL_OPACITY_DEFAULT = 1
+
+STROKE_DEFAULT = Color(SVG_NONE)
+STROKE_WIDTH_DEFAULT = 1
+STROKE_OPACITY_DEFAULT = 1
+STROKE_DASHARRAY_DEFAULT = []
+STROKE_LINECAP_DEFAULT = "butt"
 
 
 class BaseSVGConfig(BaseModel, ABC):
@@ -33,25 +47,25 @@ class AppearanceConfig(BaseSVGConfig):
     """Appearance configuration for SVG graphics"""
 
     # Fill color - set to "none" for no fill instead of SVG default "black"
-    fill: Color = Color(SVG_NONE)
+    fill: Color = Field(default=FILL_DEFAULT)
 
     # Fill opacity
-    fill_opacity: float = Field(1.0, ge=0.0, le=1.0)
+    fill_opacity: float = Field(default=FILL_OPACITY_DEFAULT, ge=0.0, le=1.0)
 
     # Stroke color
-    stroke: Color = Color("black")
+    stroke: Color = Field(default=STROKE_DEFAULT)
 
     # Stroke width
-    stroke_width: float = Field(1.0, ge=0.0)
+    stroke_width: float = Field(default=STROKE_WIDTH_DEFAULT, ge=0.0)
 
     # Stroke opacity
-    stroke_opacity: float = Field(1.0, ge=0.0, le=1.0)
+    stroke_opacity: float = Field(default=STROKE_OPACITY_DEFAULT, ge=0.0, le=1.0)
 
     # Stroke dash pattern, representing lengths of solid and blank segments
-    stroke_dasharray: List[float] | None = None
+    stroke_dasharray: List[float] = Field(default=STROKE_DASHARRAY_DEFAULT)
 
     # Stroke line cap style
-    stroke_linecap: Literal["butt", "round", "square"] = "butt"
+    stroke_linecap: Literal["butt", "round", "square"] = Field(default=STROKE_LINECAP_DEFAULT)
 
     @field_validator("stroke_dasharray")
     def validate_stroke_dasharray(cls, v):
@@ -78,6 +92,9 @@ class AppearanceConfig(BaseSVGConfig):
         }
 
         for key, value in data.items():
+            if key not in self.model_fields_set:
+                continue
+
             svg_key = attr_mapping.get(key, key)
 
             # Special handling for different types of values
@@ -91,58 +108,54 @@ class AppearanceConfig(BaseSVGConfig):
 
     def reset(self) -> None:
         """Reset the appearance to the default values"""
-        self.fill = Color(SVG_NONE)
-        self.fill_opacity = 1.0
-        self.stroke = Color("black")
-        self.stroke_width = 1.0
-        self.stroke_opacity = 1.0
-        self.stroke_dasharray = None
-        self.stroke_linecap = "butt"
+        return AppearanceConfig()
 
 
 class TransformConfig(BaseSVGConfig):
     """Transform configuration for SVG graphics"""
 
     # Translation transform. Format: (tx, ty) representing translation amounts in x and y directions
-    translate: Tuple[float, float] = (0, 0)
+    translate: Tuple[float, float] = Field(default=TRANSLATE_DEFAULT)
 
     # Rotation transform. Can be an angle value (rotate around origin) or triple (angle, cx, cy) (rotate around specified point)
-    rotate: Union[float, Tuple[float, float, float]] = (0, 0, 0)
+    rotate: Union[float, Tuple[float, float, float]] = Field(default=ROTATE_DEFAULT)
 
     # X-axis skew transform angle
-    skew_x: float = 0
+    skew_x: float = Field(default=SKEW_X_DEFAULT)
 
     # Y-axis skew transform angle
-    skew_y: float = 0
+    skew_y: float = Field(default=SKEW_Y_DEFAULT)
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
         """Generate SVG transform attribute value"""
         transform_parts = []
 
-        if self.translate is not None:
+        if "translate" in self.model_fields_set and self.translate != TRANSLATE_DEFAULT:
             tx, ty = self.translate
             transform_parts.append(f"translate({tx},{ty})")
 
-        if self.rotate is not None:
+        if "rotate" in self.model_fields_set and self.rotate != ROTATE_DEFAULT:
             if isinstance(self.rotate, (int, float)):
                 transform_parts.append(f"rotate({self.rotate})")
             else:
                 angle, cx, cy = self.rotate
                 transform_parts.append(f"rotate({angle},{cx},{cy})")
 
-        if self.skew_x is not None:
+        if "skew_x" in self.model_fields_set and self.skew_x != SKEW_X_DEFAULT:
             transform_parts.append(f"skewX({self.skew_x})")
 
-        if self.skew_y is not None:
+        if "skew_y" in self.model_fields_set and self.skew_y != SKEW_Y_DEFAULT:
             transform_parts.append(f"skewY({self.skew_y})")
 
-        return {"transform": " ".join(transform_parts) if transform_parts else SVG_NONE}
+        if transform_parts:
+            return {"transform": " ".join(transform_parts)}
+        else:
+            return {}
 
     def reset(self) -> None:
         """Reset the transform to the default values"""
-        self.translate = (0, 0)
-        self.rotate = (0, 0, 0)
-        self.skew_x = 0
-        self.skew_y = 0
-        return self
+        return TransformConfig()
+
+    def have_set(self) -> bool:
+        return len(self.model_fields_set) != 0

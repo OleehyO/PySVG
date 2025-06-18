@@ -351,3 +351,4 @@ uv.lock
 
 !examples/**
 !assets/**
+!apps/**
