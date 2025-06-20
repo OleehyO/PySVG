@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal, Tuple
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
 from pysvg.components.cell import Cell, CellConfig
@@ -240,38 +240,28 @@ class Matrix(BaseSVGComponent):
             center_y = self.config.y + (self._rows * self.config.cell_size) / 2
         else:
             # With border labeling, need to calculate center of actual content area
+            content_cols = self._cols - 1
+            content_rows = self._rows - 1
             if self._border_position == "upperleft":
                 # Actual content area: excluding row 0 and column 0
-                content_cols = self._cols - 1
-                content_rows = self._rows - 1
                 content_start_x = self.config.x + self.config.cell_size  # Start from column 1
                 content_start_y = self.config.y + self.config.cell_size  # Start from row 1
-                center_x = content_start_x + (content_cols * self.config.cell_size) / 2
-                center_y = content_start_y + (content_rows * self.config.cell_size) / 2
             elif self._border_position == "upperright":
                 # Actual content area: excluding row 0 and last column
-                content_cols = self._cols - 1
-                content_rows = self._rows - 1
                 content_start_x = self.config.x  # Start from column 0
                 content_start_y = self.config.y + self.config.cell_size  # Start from row 1
-                center_x = content_start_x + (content_cols * self.config.cell_size) / 2
-                center_y = content_start_y + (content_rows * self.config.cell_size) / 2
             elif self._border_position == "lowerleft":
                 # Actual content area: excluding last row and column 0
-                content_cols = self._cols - 1
-                content_rows = self._rows - 1
                 content_start_x = self.config.x + self.config.cell_size  # Start from column 1
                 content_start_y = self.config.y  # Start from row 0
-                center_x = content_start_x + (content_cols * self.config.cell_size) / 2
-                center_y = content_start_y + (content_rows * self.config.cell_size) / 2
             elif self._border_position == "lowerright":
                 # Actual content area: excluding last row and last column
-                content_cols = self._cols - 1
-                content_rows = self._rows - 1
                 content_start_x = self.config.x  # Start from column 0
                 content_start_y = self.config.y  # Start from row 0
-                center_x = content_start_x + (content_cols * self.config.cell_size) / 2
-                center_y = content_start_y + (content_rows * self.config.cell_size) / 2
+            else:
+                raise ValueError(f"Invalid border position: {self._border_position}")
+            center_x = content_start_x + (content_cols * self.config.cell_size) / 2
+            center_y = content_start_y + (content_rows * self.config.cell_size) / 2
 
         return (center_x, center_y)
 

@@ -11,8 +11,8 @@ class RectangleConfig(BaseSVGConfig):
 
     x: float = Field(default=0, description="Rectangle's left x coordinate")
     y: float = Field(default=0, description="Rectangle's top y coordinate")
-    width: float = Field(ge=0, description="Rectangle width (must be non-negative)")
-    height: float = Field(ge=0, description="Rectangle height (must be non-negative)")
+    width: float = Field(ge=200, description="Rectangle width (must be non-negative)")
+    height: float = Field(ge=100, description="Rectangle height (must be non-negative)")
     rx: float | None = Field(default=None, ge=0, description="X-axis radius for rounded corners")
     ry: float | None = Field(default=None, ge=0, description="Y-axis radius for rounded corners")
 

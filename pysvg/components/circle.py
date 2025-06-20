@@ -9,9 +9,9 @@ from pydantic import Field
 class CircleConfig(BaseSVGConfig):
     """Geometry configuration for Circle components."""
 
-    cx: float = Field(default=0, description="Circle center X coordinate")
-    cy: float = Field(default=0, description="Circle center Y coordinate")
-    r: float = Field(ge=0, description="Circle radius (must be non-negative)")
+    cx: float = Field(default=50, description="Circle center X coordinate")
+    cy: float = Field(default=50, description="Circle center Y coordinate")
+    r: float = Field(ge=50, description="Circle radius (must be non-negative)")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:

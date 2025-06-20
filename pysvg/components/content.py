@@ -15,7 +15,7 @@ class TextConfig(BaseSVGConfig):
     y: float = Field(
         default=0, description="Text y position , central(default) or left-upper corner)"
     )
-    text: str = Field(description="Text content to display")
+    text: str = Field(default="", description="Text content to display")
     font_size: float = Field(default=12, ge=0, description="Font size")
     font_family: str = Field(default="Arial", description="Font family")
     color: Color = Field(default=Color("black"), description="Text color")

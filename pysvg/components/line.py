@@ -11,8 +11,8 @@ class LineConfig(BaseSVGConfig):
 
     x1: float = Field(default=0, description="Line start X coordinate")
     y1: float = Field(default=0, description="Line start Y coordinate")
-    x2: float = Field(default=0, description="Line end X coordinate")
-    y2: float = Field(default=0, description="Line end Y coordinate")
+    x2: float = Field(default=100, description="Line end X coordinate")
+    y2: float = Field(default=100, description="Line end Y coordinate")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:

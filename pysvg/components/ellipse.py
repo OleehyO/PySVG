@@ -9,10 +9,10 @@ from pydantic import Field
 class EllipseConfig(BaseSVGConfig):
     """Geometry configuration for Ellipse components."""
 
-    cx: float = Field(default=0, description="Ellipse center X coordinate")
-    cy: float = Field(default=0, description="Ellipse center Y coordinate")
-    rx: float = Field(ge=0, description="Ellipse X-axis radius (must be non-negative)")
-    ry: float = Field(ge=0, description="Ellipse Y-axis radius (must be non-negative)")
+    cx: float = Field(default=100, description="Ellipse center X coordinate")
+    cy: float = Field(default=50, description="Ellipse center Y coordinate")
+    rx: float = Field(default=100, ge=0, description="Ellipse X-axis radius (must be non-negative)")
+    ry: float = Field(default=50, ge=0, description="Ellipse Y-axis radius (must be non-negative)")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
