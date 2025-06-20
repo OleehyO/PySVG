@@ -12,6 +12,7 @@ from pysvg.components.content import (
     SVGConfig,
 )
 from pydantic import Field
+from typing_extensions import override
 
 
 class CellConfig(RectangleConfig):
@@ -49,7 +50,7 @@ class Cell(BaseSVGComponent):
     ):
         super().__init__(
             config=config,
-            transform=transform if transform is not None else TransformConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
         # Create underlying rectangle component
@@ -66,18 +67,32 @@ class Cell(BaseSVGComponent):
             transform=transform,
         )
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the cell.
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
         center_x = self.config.x + self.config.width / 2
         center_y = self.config.y + self.config.height / 2
         return (center_x, center_y)
 
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "Cell":
+        current_width = self.config.width
+        current_height = self.config.height
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > max_width else 1.0
+        height_scale = max_height / current_height if current_height > max_height else 1.0
+
+        # Use the smaller scale to ensure both dimensions fit within limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain aspect ratio
+            self.scale(scale_factor)
+
+        return self
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate complete SVG element string for the cell with its content

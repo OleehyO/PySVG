@@ -11,7 +11,7 @@ class CircleConfig(BaseSVGConfig):
 
     cx: float = Field(default=50, description="Circle center X coordinate")
     cy: float = Field(default=50, description="Circle center Y coordinate")
-    r: float = Field(ge=50, description="Circle radius (must be non-negative)")
+    r: float = Field(default=50, ge=0, description="Circle radius (must be non-negative)")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
@@ -33,21 +33,35 @@ class Circle(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config is not None else CircleConfig(),
-            appearance=appearance if appearance is not None else AppearanceConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else CircleConfig(),
+            appearance=appearance if appearance else AppearanceConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the circle.
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
         return (self.config.cx, self.config.cy)
 
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "Circle":
+        # For a circle, both width and height equal the diameter (2 * r)
+        current_diameter = 2 * self.config.r
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_diameter if current_diameter > max_width else 1.0
+        height_scale = max_height / current_diameter if current_diameter > max_height else 1.0
+
+        # Use the smaller scale to ensure the circle fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain circle shape
+            self.scale(scale_factor)
+
+        return self
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate complete SVG circle element string

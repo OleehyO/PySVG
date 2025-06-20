@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="590.0" height="290.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 590.0 290.0">
+<svg width="590.0" height="290.0" viewport="(50, 30, 590, 290)" xmlns="http://www.w3.org/2000/svg" viewBox="50 30 590 290">
     <polyline points="80.0,50.0 50.0,100.0 110.0,100.0 80.0,50.0" fill="lightcoral" fill-opacity="0.3" stroke="red" stroke-width="2.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <polyline points="150.0,70.0 200.0,70.0 220.0,100.0 130.0,100.0 150.0,70.0" fill="lightblue" fill-opacity="0.3" stroke="blue" stroke-width="2.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <polyline points="300.0,30.0 310.0,60.0 340.0,60.0 320.0,80.0 330.0,110.0 300.0,95.0 270.0,110.0 280.0,80.0 260.0,60.0 290.0,60.0 300.0,30.0" fill="yellow" fill-opacity="0.6" stroke="gold" stroke-width="2.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />

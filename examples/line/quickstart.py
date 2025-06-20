@@ -145,7 +145,7 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=570, height=370)
+    canvas = Canvas(width=570, height=320, viewport=(50, 30, 570, 320))
 
     # Create example lines
     lines = [

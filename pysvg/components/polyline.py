@@ -46,19 +46,14 @@ class Polyline(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config is not None else PolylineConfig(),
-            appearance=appearance if appearance is not None else AppearanceConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else PolylineConfig(),
+            appearance=appearance if appearance else AppearanceConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the polyline (centroid of all points).
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
         if not self.config.points:
             return (0, 0)
 
@@ -68,6 +63,41 @@ class Polyline(BaseSVGComponent):
 
         return (total_x / count, total_y / count)
 
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "Polyline":
+        """
+        Restrict the size of the polyline to a maximum width and height.
+
+        Args:
+            max_width: Maximum width
+            max_height: Maximum height
+
+        Returns:
+            Self for method chaining
+        """
+        # Calculate current bounding box dimensions
+        min_x, min_y, max_x, max_y = self.get_bounding_box()
+        current_width = max_x - min_x
+        current_height = max_y - min_y
+
+        # Handle edge case: if polyline has no area (all points are the same)
+        if current_width == 0 and current_height == 0:
+            return self  # No scaling needed for a point
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > max_width else 1.0
+        height_scale = max_height / current_height if current_height > max_height else 1.0
+
+        # Use the smaller scale to ensure the polyline fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain polyline proportions
+            self.scale(scale_factor)
+
+        return self
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate complete SVG polyline element string

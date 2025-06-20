@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Literal, Tuple
+from typing_extensions import override
 
 from pydantic import Field
 
@@ -231,6 +232,7 @@ class Matrix(BaseSVGComponent):
 
         return None
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
         """Get matrix center point (considering border labeling effect)"""
@@ -265,6 +267,7 @@ class Matrix(BaseSVGComponent):
 
         return (center_x, center_y)
 
+    @override
     def to_svg_element(self) -> str:
         """Generate complete SVG element string"""
         elements = []
@@ -388,6 +391,26 @@ class Matrix(BaseSVGComponent):
                 max_x += 40
 
         return (min_x, min_y, max_x, max_y)
+
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "Matrix":
+        # Calculate current bounding box dimensions
+        min_x, min_y, max_x, max_y = self.get_bounding_box()
+        current_width = max_x - min_x
+        current_height = max_y - min_y
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > max_width else 1.0
+        height_scale = max_height / current_height if current_height > max_height else 1.0
+
+        # Use the smaller scale to ensure the matrix fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain matrix proportions
+            self.scale(scale_factor)
+
+        return self
 
     def _is_border_cell(self, row: int, col: int) -> bool:
         """Check if the cell at specified position is a border label cell"""

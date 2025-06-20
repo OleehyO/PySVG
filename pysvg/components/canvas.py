@@ -4,6 +4,7 @@ from pysvg.schema import BaseSVGConfig
 from pysvg.components.base import BaseSVGComponent
 from pysvg.utils import resolve_path, mkdir
 from pydantic import Field
+from typing_extensions import override
 
 
 class CanvasConfig(BaseSVGConfig):
@@ -11,6 +12,10 @@ class CanvasConfig(BaseSVGConfig):
 
     width: float = Field(ge=0, description="Canvas width")
     height: float = Field(ge=0, description="Canvas height")
+    viewport: tuple[int, int, int, int] | None = Field(
+        default=None,
+        description="Optional viewport (min_x, min_y, width, height) for the SVG viewBox",
+    )
 
 
 class Canvas(BaseSVGComponent):
@@ -23,8 +28,9 @@ class Canvas(BaseSVGComponent):
         self,
         width: float,
         height: float,
+        viewport: tuple[int, int, int, int] | None = None,
     ):
-        config = CanvasConfig(width=width, height=height)
+        config = CanvasConfig(width=width, height=height, viewport=viewport)
 
         super().__init__(config=config)
         self.components: List[BaseSVGComponent] = []
@@ -43,18 +49,18 @@ class Canvas(BaseSVGComponent):
         return self
 
     @property
+    @override
     def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the canvas.
-
-        Returns:
-            Tuple of (x, y) coordinates of the canvas center
-        """
         return (
             self.config.width / 2,
             self.config.height / 2,
         )
 
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "Canvas":
+        raise RuntimeError("Canvas cannot be restricted in size")
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate the complete SVG element string including all child components.
@@ -64,12 +70,13 @@ class Canvas(BaseSVGComponent):
         """
         # Start with XML declaration and SVG opening tag with namespace and viewBox
         svg_attrs = self.config.to_svg_dict()
-        svg_attrs.update(
-            {
-                "xmlns": "http://www.w3.org/2000/svg",
-                "viewBox": f"0 0 {self.config.width} {self.config.height}",
-            }
-        )
+        svg_attrs.update({"xmlns": "http://www.w3.org/2000/svg"})
+
+        # Set viewBox based on viewport if provided, otherwise use width and height
+        if self.config.viewport is not None:
+            svg_attrs["viewBox"] = " ".join(str(x) for x in self.config.viewport)
+        else:
+            svg_attrs["viewBox"] = f"0 0 {self.config.width} {self.config.height}"
 
         # Convert attributes to string
         attrs_str = " ".join([f'{k}="{v}"' for k, v in svg_attrs.items() if v is not None])

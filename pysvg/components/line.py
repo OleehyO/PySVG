@@ -9,10 +9,10 @@ from pydantic import Field
 class LineConfig(BaseSVGConfig):
     """Geometry configuration for Line components."""
 
-    x1: float = Field(default=0, description="Line start X coordinate")
-    y1: float = Field(default=0, description="Line start Y coordinate")
-    x2: float = Field(default=100, description="Line end X coordinate")
-    y2: float = Field(default=100, description="Line end Y coordinate")
+    x1: float = Field(default=0, ge=0, description="Line start X coordinate")
+    y1: float = Field(default=0, ge=0, description="Line start Y coordinate")
+    x2: float = Field(default=100, ge=0, description="Line end X coordinate")
+    y2: float = Field(default=100, ge=0, description="Line end Y coordinate")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
@@ -34,23 +34,43 @@ class Line(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config is not None else LineConfig(),
-            appearance=appearance if appearance is not None else AppearanceConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else LineConfig(),
+            appearance=appearance if appearance else AppearanceConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the line (midpoint).
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
         center_x = (self.config.x1 + self.config.x2) / 2
         center_y = (self.config.y1 + self.config.y2) / 2
         return (center_x, center_y)
 
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "Line":
+        # Calculate current bounding box dimensions
+        min_x, min_y, max_x, max_y = self.get_bounding_box()
+        current_width = max_x - min_x
+        current_height = max_y - min_y
+
+        # Handle edge case: if line is a point (width or height is 0)
+        if current_width == 0 and current_height == 0:
+            return self  # No scaling needed for a point
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > max_width else 1.0
+        height_scale = max_height / current_height if current_height > max_height else 1.0
+
+        # Use the smaller scale to ensure the line fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain line proportions
+            self.scale(scale_factor)
+
+        return self
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate complete SVG line element string

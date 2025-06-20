@@ -34,21 +34,36 @@ class Ellipse(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config is not None else EllipseConfig(),
-            appearance=appearance if appearance is not None else AppearanceConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else EllipseConfig(),
+            appearance=appearance if appearance else AppearanceConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
-        """
-        Get the central point of the ellipse.
-
-        Returns:
-            Tuple of (center_x, center_y) coordinates
-        """
         return (self.config.cx, self.config.cy)
 
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "Ellipse":
+        # For an ellipse, width = 2 * rx and height = 2 * ry
+        current_width = 2 * self.config.rx
+        current_height = 2 * self.config.ry
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > max_width else 1.0
+        height_scale = max_height / current_height if current_height > max_height else 1.0
+
+        # Use the smaller scale to ensure the ellipse fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain ellipse shape proportions
+            self.scale(scale_factor)
+
+        return self
+
+    @override
     def to_svg_element(self) -> str:
         """
         Generate complete SVG ellipse element string

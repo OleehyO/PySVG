@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Tuple
+from typing_extensions import override
 
 from pysvg.schema import AppearanceConfig, TransformConfig, BaseSVGConfig
 
@@ -52,6 +53,20 @@ class BaseSVGComponent(ABC):
 
         Returns:
             Complete SVG element as XML string
+        """
+        raise NotImplementedError("Subclasses must implement this method")
+
+    @abstractmethod
+    def restrict_size(self, max_width: float, max_height: float) -> "BaseSVGComponent":
+        """
+        Restrict the size of the component to a maximum width and height.
+
+        Args:
+            max_width: Maximum width
+            max_height: Maximum height
+
+        Returns:
+            Self for method chaining
         """
         raise NotImplementedError("Subclasses must implement this method")
 
@@ -122,6 +137,8 @@ class BaseSVGComponent(ABC):
         Returns:
             Self for method chaining
         """
+        assert hasattr(self, "transform"), "Component must have transform attribute"
+        assert isinstance(self.transform, TransformConfig), "Transform must be TransformConfig"
         self.transform.scale = scale_factor
         return self
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="460.0" height="230.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460.0 230.0">
+<svg width="460.0" height="230.0" viewport="(40, 30, 420, 200)" xmlns="http://www.w3.org/2000/svg" viewBox="40 30 420 200">
     <rect x="0" y="0" width="100.0" height="50.0" fill="lightgray" fill-opacity="1.0" stroke="black" stroke-width="2.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(50,50) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <rect x="0" y="0" width="100.0" height="50.0" fill="lightblue" fill-opacity="1.0" stroke="navy" stroke-width="2.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(200,50) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <rect x="0" y="0" width="100.0" height="50.0" rx="15.0" ry="15.0" fill="lightgreen" fill-opacity="1.0" stroke="green" stroke-width="2.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(350,50) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />

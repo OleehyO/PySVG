@@ -56,10 +56,21 @@ class TextContent(BaseSVGComponent):
     def __init__(self, config: TextConfig, transform: TransformConfig | None = None):
         super().__init__(config=config, transform=transform if transform else TransformConfig())
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
-        """Get the central point of the text"""
-        raise NotImplementedError("TextContent does not have a central point")
+        if self.config.text_anchor == "middle" and self.config.dominant_baseline == "central":
+            return (self.config.x, self.config.y)
+        else:
+            raise RuntimeWarning(
+                "When text_anchor or dominant_baseline is not middle or central, we can't determine the central point of the text"
+            )
+
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "TextContent":
+        raise RuntimeWarning(
+            "Can't restrict size of text content since we can't determine the size of the text"
+        )
 
     @override
     def to_svg_element(self) -> str:
@@ -89,12 +100,31 @@ class ImageContent(BaseSVGComponent):
     def __init__(self, config: ImageConfig, transform: TransformConfig | None = None):
         super().__init__(config=config, transform=transform if transform else TransformConfig())
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
         """Get the central point of the image"""
         center_x = self.config.x + self.config.width / 2
         center_y = self.config.y + self.config.height / 2
         return (center_x, center_y)
+
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "ImageContent":
+        current_width = self.config.width
+        current_height = self.config.height
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > max_width else 1.0
+        height_scale = max_height / current_height if current_height > max_height else 1.0
+
+        # Use the smaller scale to ensure the image fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain aspect ratio
+            self.scale(scale_factor)
+
+        return self
 
     @override
     def to_svg_element(self) -> str:
@@ -123,12 +153,31 @@ class SVGContent(BaseSVGComponent):
     def __init__(self, config: SVGConfig, transform: TransformConfig | None = None):
         super().__init__(config=config, transform=transform if transform else TransformConfig())
 
+    @override
     @property
     def central_point(self) -> Tuple[float, float]:
         """Get the central point of the SVG"""
         center_x = self.config.x + self.config.width / 2
         center_y = self.config.y + self.config.height / 2
         return (center_x, center_y)
+
+    @override
+    def restrict_size(self, max_width: float, max_height: float) -> "SVGContent":
+        current_width = self.config.width
+        current_height = self.config.height
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > max_width else 1.0
+        height_scale = max_height / current_height if current_height > max_height else 1.0
+
+        # Use the smaller scale to ensure the image fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if scale_factor < 1.0:
+            # Apply uniform scale to maintain aspect ratio
+            self.scale(scale_factor)
+
+        return self
 
     @override
     def to_svg_element(self) -> str:
