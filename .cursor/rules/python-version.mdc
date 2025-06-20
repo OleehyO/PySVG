@@ -1,0 +1,22 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Python Version and Syntax Guidelines
+
+## Core Requirement
+- This project is built using **Python 3.10** or newer.
+- You must use new features and recommended syntax from Python 3.10+.
+## Type Hinting
+- **Mandatory**: Use the `|` operator for union types instead of `typing.Union`.
+- **Example**:
+  - **Correct Way 👍**: `def my_function(param: int | str) -> list[str]:`
+  - **Incorrect Way 👎**: `from typing import Union, List` \
+                     `def my_function(param: Union[int, str]) -> List[str]:`
+
+- For standard collection types (e.g., list, dict, set, tuple), use the built-in generic types directly instead of importing them from the `typing` module.
+- **Example**:
+  - **Correct Way 👍**: `data: dict[str, int]`
+  - **Incorrect Way 👎**: `from typing import Dict` \
+                     `data: Dict[str, int]`

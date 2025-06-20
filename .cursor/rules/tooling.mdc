@@ -1,0 +1,20 @@
+---
+description: When you need to install Python packages or execute Python scripts, you need to pay attention to this rule
+globs:
+alwaysApply: false
+---
+# Project Management and Toolchain
+
+## Core Tool
+This project uses `uv` for package and environment management. All related commands should be executed via `uv`.
+
+## Package Management
+- **To install dependencies**: Use `uv pip install <package_name>`
+- **To uninstall dependencies**: Use `uv pip uninstall <package_name>`
+- **To sync dependencies**: Use `uv pip sync requirements.txt`
+
+## Running Scripts and Applications
+- **To run a Python script**: Use `uv run python <script_name>.py`
+- **To run project scripts**: If the project has scripts defined in `pyproject.toml` under `[project.scripts]`, use `uv run <script_name>`
+
+**Do not use `pip` or `python` commands directly unless explicitly told to.**

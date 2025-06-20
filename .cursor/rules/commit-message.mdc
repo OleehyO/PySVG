@@ -1,0 +1,74 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Git Commit Message Guidelines
+
+When asked to write a commit message, you must follow the rules below.
+
+---
+
+## 1. Format
+Every commit message must adhere to the following structure. The entire message must be in **English**.
+  - **Tag**: The subject line must begin with a tag enclosed in square brackets `[]`. The tag must be from the allowed list below.
+  - **Subject**: The subject line must be a concise summary of the change, written in the imperative mood (e.g., "Add feature", not "Added feature").
+  - **Body**: If the change is complex, provide a more detailed explanation in the body. Explain the "what" and "why" of the change, not the "how".
+
+-----
+
+## 2. Allowed Tags
+
+You must use one of the following tags:
+
+  - **`[feat]`**: A new feature or a user-facing change.
+  - **`[fix]`**: A bug fix for the user.
+  - **`[docs]`**: Changes to documentation only (e.g., README, comments).
+  - **`[style]`**: Code style changes that do not affect the meaning of the code (e.g., white-space, formatting, missing semi-colons).
+  - **`[refactor]`**: A code change that neither fixes a bug nor adds a feature.
+  - **`[test]`**: Adding new tests or correcting existing tests.
+  - **`[chore]`**: Changes to the build process, auxiliary tools, or libraries. Routine tasks. (e.g., updating dependencies with `uv`).
+  - **`[build]`**: Changes that affect the build system or external dependencies.
+  - **`[ci]`**: Changes to CI/CD configuration files and scripts.
+  - **`[misc]`**: Miscellaneous changes that don't fit into other categories.
+
+-----
+
+## 3. Style Guide
+
+  - **Language**: The entire commit message **must be written in English**.
+  - **Mood**: Use the **imperative mood** in the subject line (e.g., "Add", "Fix", "Change", "Update" not "Added", "Fixes").
+  - **Capitalization**: Capitalize the subject line (after the tag).
+  - **Punctuation**: Do not end the subject line with a period.
+-----
+
+## 4. Examples
+
+Here are some examples of good commit messages:
+
+**Example 1: A simple feature**
+
+```
+[feat]: Add user profile page
+```
+
+**Example 2: A fix with a detailed body**
+
+```
+[fix]: Prevent crash when processing invalid SVG file
+
+The application would previously crash if the input file was missing
+a closing SVG tag. This change adds error handling to gracefully
+reject the file and notify the user.
+```
+**Example 3: A chore task**
+
+```
+[chore]: Update project dependencies via uv pip sync
+```
+
+**Example 4: A documentation change**
+
+```
+[docs]: Improve installation instructions in README
+```
