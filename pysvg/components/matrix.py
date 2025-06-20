@@ -18,8 +18,6 @@ BorderPosition = Literal["upperleft", "upperright", "lowerleft", "lowerright"]
 class MatrixConfig(BaseSVGConfig):
     """Matrix component configuration"""
 
-    model_config = ConfigDict(extra="forbid")
-
     x: float = Field(default=0, description="Matrix x position")
     y: float = Field(default=0, description="Matrix y position")
     cell_size: float = Field(default=50, ge=1, description="Size of each cell")
