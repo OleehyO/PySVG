@@ -1,6 +1,6 @@
 from typing import Any, List, Literal, Tuple, Union
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing_extensions import override
 
 from pysvg.constants import SVG_NONE
@@ -10,6 +10,8 @@ from .color import Color
 
 class BaseSVGConfig(BaseModel):
     """Base configuration for SVG graphics"""
+
+    model_config = ConfigDict(extra="forbid")
 
     def to_svg_dict(self) -> dict[str, Any]:
         attrs = self.model_dump(exclude_none=True)

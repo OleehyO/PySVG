@@ -1,12 +1,12 @@
-from typing import Tuple, Literal
 from pathlib import Path
+from typing import Literal, Tuple
 
-from pysvg.schema import AppearanceConfig, TransformConfig, Color, SVGCode
-from pysvg.components.base import BaseSVGComponent
+from pydantic import ConfigDict, Field
+
+from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
 from pysvg.components.cell import Cell, CellConfig
-from pysvg.components.content import TextConfig, ImageConfig, SVGConfig, TextContent
-from pydantic import BaseModel, Field
-
+from pysvg.components.content import ImageConfig, SVGConfig, TextConfig, TextContent
+from pysvg.schema import AppearanceConfig, Color, SVGCode, TransformConfig
 
 # Define matrix element data type
 MatElemType = str | int | float | Path | SVGCode
@@ -15,8 +15,10 @@ MatElemType = str | int | float | Path | SVGCode
 BorderPosition = Literal["upperleft", "upperright", "lowerleft", "lowerright"]
 
 
-class MatrixConfig(BaseModel):
+class MatrixConfig(BaseSVGConfig):
     """Matrix component configuration"""
+
+    model_config = ConfigDict(extra="forbid")
 
     x: float = Field(default=0, description="Matrix x position")
     y: float = Field(default=0, description="Matrix y position")
