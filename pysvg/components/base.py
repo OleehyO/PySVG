@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any, Tuple
-from typing_extensions import override
+from typing import Tuple
 
-from pysvg.schema import AppearanceConfig, TransformConfig, BaseSVGConfig
+from pysvg.logger import get_logger
+from pysvg.schema import AppearanceConfig, BBox, ComponentConfig, TransformConfig
+
+_logger = get_logger(__name__)
 
 
 class BaseSVGComponent(ABC):
@@ -16,7 +18,7 @@ class BaseSVGComponent(ABC):
 
     def __init__(
         self,
-        config: BaseSVGConfig | None = None,
+        config: ComponentConfig | None = None,
         appearance: AppearanceConfig | None = None,
         transform: TransformConfig | None = None,
     ):
@@ -33,7 +35,7 @@ class BaseSVGComponent(ABC):
 
     @property
     @abstractmethod
-    def central_point(self) -> Tuple[float, float]:
+    def central_point_relative(self) -> Tuple[float, float]:
         """
         Get the central point of the component.
 
@@ -47,6 +49,13 @@ class BaseSVGComponent(ABC):
         raise NotImplementedError("Subclasses must implement this property")
 
     @abstractmethod
+    def get_bounding_box(self) -> BBox:
+        """
+        Get the bounding box of the component.
+        """
+        raise NotImplementedError("Subclasses must implement this method")
+
+    @abstractmethod
     def to_svg_element(self) -> str:
         """
         Generate the complete SVG element string.
@@ -56,10 +65,46 @@ class BaseSVGComponent(ABC):
         """
         raise NotImplementedError("Subclasses must implement this method")
 
-    @abstractmethod
+    @property
+    def central_point(self) -> Tuple[float, float]:
+        """
+        Get the absolute central point of the component.
+
+        If transform is not set, returns the relative central point with a warning.
+        If transform is set, returns the central point with translation applied.
+
+        Returns:
+            Tuple[float, float]: The absolute (x, y) coordinates of the central point
+        """
+        relative_x, relative_y = self.central_point_relative
+
+        if not self.has_transform():
+            _logger.warning(
+                f"{self.__class__.__name__} has no transform, returning relative central point"
+            )
+            return relative_x, relative_y
+
+        translate = self.transform.translate or (0, 0)
+        return relative_x + translate[0], relative_y + translate[1]
+
+    def get_attr_dict(self) -> dict[str, str]:
+        """
+        Get the attributes of the component as a dictionary.
+        """
+        attr = {}
+        if hasattr(self, "config") and isinstance(self.config, ComponentConfig):
+            attr.update(self.config.to_svg_dict())
+        if hasattr(self, "appearance") and isinstance(self.appearance, AppearanceConfig):
+            attr.update(self.appearance.to_svg_dict())
+        if hasattr(self, "transform") and isinstance(self.transform, TransformConfig):
+            attr.update(self.transform.to_svg_dict())
+        attr_strings = {k: str(v) for k, v in attr.items()}
+        return attr_strings
+
     def restrict_size(self, max_width: float, max_height: float) -> "BaseSVGComponent":
         """
         Restrict the size of the component to a maximum width and height.
+        Maintains the aspect ratio by using the smaller scaling factor.
 
         Args:
             max_width: Maximum width
@@ -68,11 +113,26 @@ class BaseSVGComponent(ABC):
         Returns:
             Self for method chaining
         """
-        raise NotImplementedError("Subclasses must implement this method")
+        bbox = self.get_bounding_box()
+        current_width = bbox.width
+        current_height = bbox.height
+
+        # Calculate scale factors for both dimensions
+        width_scale = max_width / current_width if current_width > 0 else 1.0
+        height_scale = max_height / current_height if current_height > 0 else 1.0
+
+        # Use the smaller scale factor to maintain aspect ratio
+        scale_factor = min(width_scale, height_scale)
+
+        # Only apply scaling if we need to reduce the size
+        if scale_factor < 1.0:
+            self.scale(scale_factor)
+
+        return self
 
     def has_transform(self) -> bool:
         """Check if the component has any transforms."""
-        return self.transform is not None
+        return self.transform is not None and isinstance(self.transform, TransformConfig)
 
     # Transform methods
     def move(self, x: float, y: float) -> "BaseSVGComponent":
@@ -107,20 +167,20 @@ class BaseSVGComponent(ABC):
         return self
 
     def rotate(
-        self, angle: float | Tuple[float, float, float], around_center: bool = True
+        self, angle: float | Tuple[float, float, float], around_center_relative: bool = True
     ) -> "BaseSVGComponent":
         """
         Rotate the component by a specified angle.
 
         Args:
             angle: Rotation angle in degrees
-            around_center: If True, rotate around component center; if False, rotate around origin
+            around_center_relative: If True, rotate around component center (relative); if False, rotate around origin
 
         Returns:
             Self for method chaining
         """
-        if around_center:
-            cx, cy = self.central_point
+        if around_center_relative:
+            cx, cy = self.central_point_relative
             self.transform.rotate = (angle, cx, cy)
         else:
             self.transform.rotate = angle

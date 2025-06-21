@@ -224,21 +224,21 @@ def generate_demo_svg():
     print("=== Generate Demo SVG ===")
 
     # Create Canvas
-    canvas = Canvas(width=600, height=150)
+    canvas = Canvas(width=600, height=100, viewbox=(0, 0, 550, 80))
 
-    # Add title
-    title = TextContent(
-        config=TextConfig(
-            x=300,
-            y=15,
-            text="Cell Component Quick Start Examples",
-            font_size=14,
-            font_family="Arial",
-            color=Color("black"),
-            text_anchor="middle",
-        )
-    )
-    canvas.add(title)
+    # # Add title
+    # title = TextContent(
+    #     config=TextConfig(
+    #         x=300,
+    #         y=15,
+    #         text="Cell Component Quick Start Examples",
+    #         font_size=14,
+    #         font_family="Arial",
+    #         color=Color("black"),
+    #         text_anchor="middle",
+    #     )
+    # )
+    # canvas.add(title)
 
     # Add labels
     labels = [("Basic", 70), ("Text", 200), ("Rounded", 330), ("Rotated", 450)]

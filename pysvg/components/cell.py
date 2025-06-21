@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from pysvg.schema import AppearanceConfig, TransformConfig
-from pysvg.components.base import BaseSVGComponent
+from pysvg.components.base import BaseSVGComponent, BBox
 from pysvg.components.rectangle import Rectangle, RectangleConfig
 from pysvg.components.content import (
     TextContent,
@@ -36,6 +36,10 @@ class CellConfig(RectangleConfig):
         if sum(content_types) > 1:
             raise ValueError("Only one type of content (text, image, or svg) can be specified")
 
+    @override
+    def to_svg_dict(self) -> dict[str, str]:
+        raise NotImplementedError("CellConfig is not implemented")
+
 
 class Cell(BaseSVGComponent):
     """
@@ -69,28 +73,14 @@ class Cell(BaseSVGComponent):
 
     @override
     @property
-    def central_point(self) -> Tuple[float, float]:
+    def central_point_relative(self) -> Tuple[float, float]:
         center_x = self.config.x + self.config.width / 2
         center_y = self.config.y + self.config.height / 2
         return (center_x, center_y)
 
     @override
-    def restrict_size(self, max_width: float, max_height: float) -> "Cell":
-        current_width = self.config.width
-        current_height = self.config.height
-
-        # Calculate scale factors for both dimensions
-        width_scale = max_width / current_width if current_width > max_width else 1.0
-        height_scale = max_height / current_height if current_height > max_height else 1.0
-
-        # Use the smaller scale to ensure both dimensions fit within limits
-        scale_factor = min(width_scale, height_scale)
-
-        if scale_factor < 1.0:
-            # Apply uniform scale to maintain aspect ratio
-            self.scale(scale_factor)
-
-        return self
+    def get_bounding_box(self) -> BBox:
+        return self._rectangle.get_bounding_box()
 
     @override
     def to_svg_element(self) -> str:

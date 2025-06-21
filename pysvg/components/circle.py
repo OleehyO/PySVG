@@ -1,12 +1,12 @@
 from typing import Tuple
 from typing_extensions import override
 
-from pysvg.schema import AppearanceConfig, TransformConfig
-from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
+from pysvg.schema import AppearanceConfig, TransformConfig, BBox
+from pysvg.components.base import BaseSVGComponent, ComponentConfig
 from pydantic import Field
 
 
-class CircleConfig(BaseSVGConfig):
+class CircleConfig(ComponentConfig):
     """Geometry configuration for Circle components."""
 
     cx: float = Field(default=50, description="Circle center X coordinate")
@@ -15,8 +15,7 @@ class CircleConfig(BaseSVGConfig):
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
-        """Convert config parameters to SVG attributes dictionary."""
-        attrs = super().to_svg_dict()
+        attrs = self.model_dump(exclude_none=True)
         attrs = {k: str(v) for k, v in attrs.items()}
         return attrs
 
@@ -40,7 +39,7 @@ class Circle(BaseSVGComponent):
 
     @override
     @property
-    def central_point(self) -> Tuple[float, float]:
+    def central_point_relative(self) -> Tuple[float, float]:
         return (self.config.cx, self.config.cy)
 
     @override
@@ -69,25 +68,17 @@ class Circle(BaseSVGComponent):
         Returns:
             XML string of SVG circle element
         """
-        attrs = {}
-        attrs.update(self.config.to_svg_dict())
-        attrs.update(self.appearance.to_svg_dict())
-        attrs.update(self.transform.to_svg_dict())
-        attr_strings = [f'{key}="{value}"' for key, value in attrs.items()]
-        return f"<circle {' '.join(attr_strings)} />"
+        attrs = self.get_attr_dict()
+        attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
+        return f"<circle {' '.join(attrs_ls)} />"
 
-    def get_bounding_box(self) -> Tuple[float, float, float, float]:
-        """
-        Get circle's bounding box (without considering transformations)
-
-        Returns:
-            (min_x, min_y, max_x, max_y) bounding box coordinates
-        """
-        return (
-            self.config.cx - self.config.r,
-            self.config.cy - self.config.r,
-            self.config.cx + self.config.r,
-            self.config.cy + self.config.r,
+    @override
+    def get_bounding_box(self) -> BBox:
+        return BBox(
+            x=self.config.cx - self.config.r,
+            y=self.config.cy - self.config.r,
+            width=2 * self.config.r,
+            height=2 * self.config.r,
         )
 
     def get_area(self) -> float:

@@ -1,12 +1,12 @@
 from typing import List, Tuple
 from typing_extensions import override
 
-from pysvg.schema import AppearanceConfig, TransformConfig
-from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
+from pysvg.schema import AppearanceConfig, TransformConfig, BBox
+from pysvg.components.base import BaseSVGComponent, ComponentConfig
 from pydantic import Field, field_validator
 
 
-class PolylineConfig(BaseSVGConfig):
+class PolylineConfig(ComponentConfig):
     """Geometry configuration for Polyline components."""
 
     points: List[Tuple[float, float]] = Field(
@@ -53,7 +53,7 @@ class Polyline(BaseSVGComponent):
 
     @override
     @property
-    def central_point(self) -> Tuple[float, float]:
+    def central_point_relative(self) -> Tuple[float, float]:
         if not self.config.points:
             return (0, 0)
 
@@ -64,68 +64,25 @@ class Polyline(BaseSVGComponent):
         return (total_x / count, total_y / count)
 
     @override
-    def restrict_size(self, max_width: float, max_height: float) -> "Polyline":
-        """
-        Restrict the size of the polyline to a maximum width and height.
-
-        Args:
-            max_width: Maximum width
-            max_height: Maximum height
-
-        Returns:
-            Self for method chaining
-        """
-        # Calculate current bounding box dimensions
-        min_x, min_y, max_x, max_y = self.get_bounding_box()
-        current_width = max_x - min_x
-        current_height = max_y - min_y
-
-        # Handle edge case: if polyline has no area (all points are the same)
-        if current_width == 0 and current_height == 0:
-            return self  # No scaling needed for a point
-
-        # Calculate scale factors for both dimensions
-        width_scale = max_width / current_width if current_width > max_width else 1.0
-        height_scale = max_height / current_height if current_height > max_height else 1.0
-
-        # Use the smaller scale to ensure the polyline fits within both limits
-        scale_factor = min(width_scale, height_scale)
-
-        if scale_factor < 1.0:
-            # Apply uniform scale to maintain polyline proportions
-            self.scale(scale_factor)
-
-        return self
-
-    @override
-    def to_svg_element(self) -> str:
-        """
-        Generate complete SVG polyline element string
-
-        Returns:
-            XML string of SVG polyline element
-        """
-        attrs = {}
-        attrs.update(self.config.to_svg_dict())
-        attrs.update(self.appearance.to_svg_dict())
-        attrs.update(self.transform.to_svg_dict())
-        attr_strings = [f'{key}="{value}"' for key, value in attrs.items()]
-        return f"<polyline {' '.join(attr_strings)} />"
-
-    def get_bounding_box(self) -> Tuple[float, float, float, float]:
-        """
-        Get polyline's bounding box (without considering transformations)
-
-        Returns:
-            (min_x, min_y, max_x, max_y) bounding box coordinates
-        """
+    def get_bounding_box(self) -> BBox:
         if not self.config.points:
-            return (0, 0, 0, 0)
+            return BBox(x=0, y=0, width=0, height=0)
 
         x_coords = [x for x, y in self.config.points]
         y_coords = [y for x, y in self.config.points]
 
-        return (min(x_coords), min(y_coords), max(x_coords), max(y_coords))
+        return BBox(
+            x=min(x_coords),
+            y=min(y_coords),
+            width=max(x_coords) - min(x_coords),
+            height=max(y_coords) - min(y_coords),
+        )
+
+    @override
+    def to_svg_element(self) -> str:
+        attrs = self.get_attr_dict()
+        attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
+        return f"<polyline {' '.join(attrs_ls)} />"
 
     def get_total_length(self) -> float:
         """

@@ -4,10 +4,10 @@ from typing_extensions import override
 
 from pydantic import Field
 
-from pysvg.components.base import BaseSVGComponent, BaseSVGConfig
+from pysvg.components.base import BaseSVGComponent, ComponentConfig
 from pysvg.components.cell import Cell, CellConfig
 from pysvg.components.content import ImageConfig, SVGConfig, TextConfig, TextContent
-from pysvg.schema import AppearanceConfig, Color, SVGCode, TransformConfig
+from pysvg.schema import AppearanceConfig, Color, SVGCode, TransformConfig, BBox
 
 # Define matrix element data type
 MatElemType = str | int | float | Path | SVGCode
@@ -16,13 +16,17 @@ MatElemType = str | int | float | Path | SVGCode
 BorderPosition = Literal["upperleft", "upperright", "lowerleft", "lowerright"]
 
 
-class MatrixConfig(BaseSVGConfig):
+class MatrixConfig(ComponentConfig):
     """Matrix component configuration"""
 
     x: float = Field(default=0, description="Matrix x position")
     y: float = Field(default=0, description="Matrix y position")
     cell_size: float = Field(default=50, ge=1, description="Size of each cell")
     cell_padding: float = Field(default=5, ge=0, description="Padding inside each cell")
+
+    @override
+    def to_svg_dict(self) -> dict[str, str]:
+        raise NotImplementedError("MatrixConfig is not implemented")
 
 
 class Matrix(BaseSVGComponent):
@@ -63,8 +67,8 @@ class Matrix(BaseSVGComponent):
             transform: Transform configuration
         """
         super().__init__(
-            config=config if config is not None else MatrixConfig(),
-            transform=transform if transform is not None else TransformConfig(),
+            config=config if config else MatrixConfig(),
+            transform=transform if transform else TransformConfig(),
         )
 
         # Validate data validity
@@ -124,6 +128,88 @@ class Matrix(BaseSVGComponent):
 
         # Create cells
         self._create_cells()
+
+    @override
+    @property
+    def central_point_relative(self) -> Tuple[float, float]:
+        if self._border_position is None:
+            # No border labeling, use center of entire matrix
+            center_x = self.config.x + (self._cols * self.config.cell_size) / 2
+            center_y = self.config.y + (self._rows * self.config.cell_size) / 2
+        else:
+            # With border labeling, need to calculate center of actual content area
+            content_cols = self._cols - 1
+            content_rows = self._rows - 1
+            if self._border_position == "upperleft":
+                # Actual content area: excluding row 0 and column 0
+                content_start_x = self.config.x + self.config.cell_size  # Start from column 1
+                content_start_y = self.config.y + self.config.cell_size  # Start from row 1
+            elif self._border_position == "upperright":
+                # Actual content area: excluding row 0 and last column
+                content_start_x = self.config.x  # Start from column 0
+                content_start_y = self.config.y + self.config.cell_size  # Start from row 1
+            elif self._border_position == "lowerleft":
+                # Actual content area: excluding last row and column 0
+                content_start_x = self.config.x + self.config.cell_size  # Start from column 1
+                content_start_y = self.config.y  # Start from row 0
+            elif self._border_position == "lowerright":
+                # Actual content area: excluding last row and last column
+                content_start_x = self.config.x  # Start from column 0
+                content_start_y = self.config.y  # Start from row 0
+            else:
+                raise ValueError(f"Invalid border position: {self._border_position}")
+            center_x = content_start_x + (content_cols * self.config.cell_size) / 2
+            center_y = content_start_y + (content_rows * self.config.cell_size) / 2
+
+        return (center_x, center_y)
+
+    @override
+    def get_bounding_box(self) -> BBox:
+        matrix_width = self._cols * self.config.cell_size
+        matrix_height = self._rows * self.config.cell_size
+
+        min_x = self.config.x
+        min_y = self.config.y
+        max_x = self.config.x + matrix_width
+        max_y = self.config.y + matrix_height
+
+        # Consider caption position
+        if self._caption is not None and self._caption_location is not None:
+            if self._caption_location == "top":
+                min_y -= 40  # Leave space for caption
+            elif self._caption_location == "down":
+                max_y += 40
+            elif self._caption_location == "left":
+                min_x -= 40
+            elif self._caption_location == "right":
+                max_x += 40
+
+        return BBox(
+            x=min_x,
+            y=min_y,
+            width=max_x - min_x,
+            height=max_y - min_y,
+        )
+
+    @override
+    def to_svg_element(self) -> str:
+        elements = []
+
+        # Add all cells
+        for row_cells in self._cells:
+            for cell in row_cells:
+                elements.append(cell.to_svg_element())
+
+        # Add caption
+        if self._caption is not None:
+            elements.append(self._render_caption())
+
+        # Apply transform
+        transform_dict = self.transform.to_svg_dict()
+        if "transform" in transform_dict and transform_dict["transform"] != "none":
+            return f'<g transform="{transform_dict["transform"]}">{"".join(elements)}</g>'
+
+        return f"<g>{''.join(elements)}</g>"
 
     def _create_cells(self):
         """Create all Cell components"""
@@ -232,63 +318,6 @@ class Matrix(BaseSVGComponent):
 
         return None
 
-    @override
-    @property
-    def central_point(self) -> Tuple[float, float]:
-        """Get matrix center point (considering border labeling effect)"""
-        if self._border_position is None:
-            # No border labeling, use center of entire matrix
-            center_x = self.config.x + (self._cols * self.config.cell_size) / 2
-            center_y = self.config.y + (self._rows * self.config.cell_size) / 2
-        else:
-            # With border labeling, need to calculate center of actual content area
-            content_cols = self._cols - 1
-            content_rows = self._rows - 1
-            if self._border_position == "upperleft":
-                # Actual content area: excluding row 0 and column 0
-                content_start_x = self.config.x + self.config.cell_size  # Start from column 1
-                content_start_y = self.config.y + self.config.cell_size  # Start from row 1
-            elif self._border_position == "upperright":
-                # Actual content area: excluding row 0 and last column
-                content_start_x = self.config.x  # Start from column 0
-                content_start_y = self.config.y + self.config.cell_size  # Start from row 1
-            elif self._border_position == "lowerleft":
-                # Actual content area: excluding last row and column 0
-                content_start_x = self.config.x + self.config.cell_size  # Start from column 1
-                content_start_y = self.config.y  # Start from row 0
-            elif self._border_position == "lowerright":
-                # Actual content area: excluding last row and last column
-                content_start_x = self.config.x  # Start from column 0
-                content_start_y = self.config.y  # Start from row 0
-            else:
-                raise ValueError(f"Invalid border position: {self._border_position}")
-            center_x = content_start_x + (content_cols * self.config.cell_size) / 2
-            center_y = content_start_y + (content_rows * self.config.cell_size) / 2
-
-        return (center_x, center_y)
-
-    @override
-    def to_svg_element(self) -> str:
-        """Generate complete SVG element string"""
-        elements = []
-
-        # Add all cells
-        for row_cells in self._cells:
-            for cell in row_cells:
-                elements.append(cell.to_svg_element())
-
-        # Add caption
-        if self._caption is not None:
-            elements.append(self._render_caption())
-
-        # Apply transform
-        if self.has_transform():
-            transform_dict = self.transform.to_svg_dict()
-            if "transform" in transform_dict and transform_dict["transform"] != "none":
-                return f'<g transform="{transform_dict["transform"]}">{"".join(elements)}</g>'
-
-        return f"<g>{''.join(elements)}</g>"
-
     def _render_caption(self) -> str:
         """Render caption"""
         if self._caption is None or self._caption_location is None:
@@ -367,49 +396,6 @@ class Matrix(BaseSVGComponent):
         """Set font color for all matrix elements that are str (except border elements)"""
         self._font_color = font_color
         self._create_cells()  # Recreate cells
-        return self
-
-    def get_bounding_box(self) -> Tuple[float, float, float, float]:
-        """Get matrix bounding box"""
-        matrix_width = self._cols * self.config.cell_size
-        matrix_height = self._rows * self.config.cell_size
-
-        min_x = self.config.x
-        min_y = self.config.y
-        max_x = self.config.x + matrix_width
-        max_y = self.config.y + matrix_height
-
-        # Consider caption position
-        if self._caption is not None and self._caption_location is not None:
-            if self._caption_location == "top":
-                min_y -= 40  # Leave space for caption
-            elif self._caption_location == "down":
-                max_y += 40
-            elif self._caption_location == "left":
-                min_x -= 40
-            elif self._caption_location == "right":
-                max_x += 40
-
-        return (min_x, min_y, max_x, max_y)
-
-    @override
-    def restrict_size(self, max_width: float, max_height: float) -> "Matrix":
-        # Calculate current bounding box dimensions
-        min_x, min_y, max_x, max_y = self.get_bounding_box()
-        current_width = max_x - min_x
-        current_height = max_y - min_y
-
-        # Calculate scale factors for both dimensions
-        width_scale = max_width / current_width if current_width > max_width else 1.0
-        height_scale = max_height / current_height if current_height > max_height else 1.0
-
-        # Use the smaller scale to ensure the matrix fits within both limits
-        scale_factor = min(width_scale, height_scale)
-
-        if scale_factor < 1.0:
-            # Apply uniform scale to maintain matrix proportions
-            self.scale(scale_factor)
-
         return self
 
     def _is_border_cell(self, row: int, col: int) -> bool:

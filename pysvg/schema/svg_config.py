@@ -1,4 +1,5 @@
 from typing import Any, List, Literal, Tuple, Union
+from abc import abstractmethod, ABC
 
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing_extensions import override
@@ -8,17 +9,32 @@ from pysvg.constants import SVG_NONE
 from .color import Color
 
 
-class BaseSVGConfig(BaseModel):
+class BaseSVGConfig(BaseModel, ABC):
     """Base configuration for SVG graphics"""
 
     model_config = ConfigDict(extra="forbid")
 
-    def to_svg_dict(self) -> dict[str, Any]:
-        attrs = self.model_dump(exclude_none=True)
-        return attrs
+    @abstractmethod
+    def to_svg_dict(self) -> dict[str, str]:
+        """Convert config parameters to SVG attributes dictionary."""
+        raise NotImplementedError("Not implemented")
 
+    @abstractmethod
     def reset(self) -> None:
         """Reset the config to the default values"""
+        raise NotImplementedError("Not implemented")
+
+
+class ComponentConfig(BaseSVGConfig):
+    """Base configuration for all components"""
+
+    @override
+    def to_svg_dict(self) -> dict[str, str]:
+        """**Different component has different attributes name**, so this method is not implemented"""
+        raise NotImplementedError("Not implemented")
+
+    @override
+    def reset(self) -> None:
         raise NotImplementedError("Not implemented")
 
 
@@ -58,7 +74,7 @@ class AppearanceConfig(BaseSVGConfig):
     @override
     def to_svg_dict(self) -> dict[str, str]:
         """Convert to SVG attributes dictionary using Pydantic serialization"""
-        data = super().to_svg_dict()
+        data = self.model_dump(exclude_none=True)
         svg_attrs = {}
 
         # Handle attribute name mapping and special conversions

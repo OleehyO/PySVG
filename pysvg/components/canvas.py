@@ -1,21 +1,38 @@
 from typing import List, Tuple
 from pathlib import Path
-from pysvg.schema import BaseSVGConfig
-from pysvg.components.base import BaseSVGComponent
+from pysvg.schema import ComponentConfig
+from pysvg.components.base import BaseSVGComponent, BBox
 from pysvg.utils import resolve_path, mkdir
 from pydantic import Field
 from typing_extensions import override
 
 
-class CanvasConfig(BaseSVGConfig):
+class CanvasConfig(ComponentConfig):
     """Canvas configuration for Canvas component."""
 
     width: float = Field(ge=0, description="Canvas width")
     height: float = Field(ge=0, description="Canvas height")
-    viewport: tuple[int, int, int, int] | None = Field(
+    viewbox: tuple[int, int, int, int] | None = Field(
         default=None,
-        description="Optional viewport (min_x, min_y, width, height) for the SVG viewBox",
+        description="Optional viewbox (min_x, min_y, width, height) for the SVG viewBox",
     )
+
+    @override
+    def to_svg_dict(self) -> dict[str, str]:
+        """Convert config parameters to SVG attributes dictionary."""
+        attrs = {
+            "width": str(self.width),
+            "height": str(self.height),
+        }
+        if self.viewbox is not None:
+            attrs["viewBox"] = " ".join(str(x) for x in self.viewbox)
+        else:
+            attrs["viewBox"] = f"0 0 {self.width} {self.height}"
+
+        attrs.update(
+            {"xmlns": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink"}
+        )
+        return attrs
 
 
 class Canvas(BaseSVGComponent):
@@ -28,9 +45,9 @@ class Canvas(BaseSVGComponent):
         self,
         width: float,
         height: float,
-        viewport: tuple[int, int, int, int] | None = None,
+        viewbox: tuple[int, int, int, int] | None = None,
     ):
-        config = CanvasConfig(width=width, height=height, viewport=viewport)
+        config = CanvasConfig(width=width, height=height, viewbox=viewbox)
 
         super().__init__(config=config)
         self.components: List[BaseSVGComponent] = []
@@ -50,15 +67,20 @@ class Canvas(BaseSVGComponent):
 
     @property
     @override
-    def central_point(self) -> Tuple[float, float]:
+    def central_point_relative(self) -> Tuple[float, float]:
         return (
             self.config.width / 2,
             self.config.height / 2,
         )
 
     @override
-    def restrict_size(self, max_width: float, max_height: float) -> "Canvas":
-        raise RuntimeError("Canvas cannot be restricted in size")
+    def get_bounding_box(self) -> BBox:
+        return BBox(
+            min_x=0,
+            min_y=0,
+            max_x=self.config.width,
+            max_y=self.config.height,
+        )
 
     @override
     def to_svg_element(self) -> str:
@@ -69,14 +91,7 @@ class Canvas(BaseSVGComponent):
             Complete SVG element as XML string
         """
         # Start with XML declaration and SVG opening tag with namespace and viewBox
-        svg_attrs = self.config.to_svg_dict()
-        svg_attrs.update({"xmlns": "http://www.w3.org/2000/svg"})
-
-        # Set viewBox based on viewport if provided, otherwise use width and height
-        if self.config.viewport is not None:
-            svg_attrs["viewBox"] = " ".join(str(x) for x in self.config.viewport)
-        else:
-            svg_attrs["viewBox"] = f"0 0 {self.config.width} {self.config.height}"
+        svg_attrs = self.get_attr_dict()
 
         # Convert attributes to string
         attrs_str = " ".join([f'{k}="{v}"' for k, v in svg_attrs.items() if v is not None])
