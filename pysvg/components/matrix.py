@@ -23,6 +23,7 @@ class MatrixConfig(ComponentConfig):
     y: float = Field(default=0, description="Matrix y position")
     cell_size: float = Field(default=50, ge=1, description="Size of each cell")
     cell_padding: float = Field(default=5, ge=0, description="Padding inside each cell")
+    caption_margin: float = Field(default=20, ge=0, description="Margin between matrix and caption")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
@@ -175,14 +176,8 @@ class Matrix(BaseSVGComponent):
 
         # Consider caption position
         if self._caption is not None and self._caption_location is not None:
-            if self._caption_location == "top":
-                min_y -= 40  # Leave space for caption
-            elif self._caption_location == "down":
-                max_y += 40
-            elif self._caption_location == "left":
-                min_x -= 40
-            elif self._caption_location == "right":
-                max_x += 40
+            max_y += self.config.caption_margin
+            max_x += self.config.caption_margin
 
         return BBox(
             x=min_x,
@@ -343,18 +338,22 @@ class Matrix(BaseSVGComponent):
         # Adjust coordinates based on position, using center point as reference
         if self._caption_location == "top":
             caption_config.x = center_x
-            caption_config.y = self.config.y - 20  # Offset upward from matrix top
+            caption_config.y = (
+                self.config.y - self.config.caption_margin
+            )  # Offset upward from matrix top
         elif self._caption_location == "down":
             caption_config.x = center_x
             caption_config.y = (
-                self.config.y + matrix_height + 20
+                self.config.y + matrix_height + self.config.caption_margin
             )  # Offset downward from matrix bottom
         elif self._caption_location == "left":
-            caption_config.x = self.config.x - 20  # Offset leftward from matrix left
+            caption_config.x = (
+                self.config.x - self.config.caption_margin
+            )  # Offset leftward from matrix left
             caption_config.y = center_y
         elif self._caption_location == "right":
             caption_config.x = (
-                self.config.x + matrix_width + 20
+                self.config.x + matrix_width + self.config.caption_margin
             )  # Offset rightward from matrix right
             caption_config.y = center_y
 

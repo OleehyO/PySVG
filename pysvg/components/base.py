@@ -98,8 +98,8 @@ class BaseSVGComponent(ABC):
             attr.update(self.appearance.to_svg_dict())
         if hasattr(self, "transform") and isinstance(self.transform, TransformConfig):
             attr.update(self.transform.to_svg_dict())
-        attr_strings = {k: str(v) for k, v in attr.items()}
-        return attr_strings
+        attr = {k: str(v) for k, v in attr.items()}
+        return attr
 
     def restrict_size(self, max_width: float, max_height: float) -> "BaseSVGComponent":
         """

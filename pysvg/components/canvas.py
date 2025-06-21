@@ -76,10 +76,10 @@ class Canvas(BaseSVGComponent):
     @override
     def get_bounding_box(self) -> BBox:
         return BBox(
-            min_x=0,
-            min_y=0,
-            max_x=self.config.width,
-            max_y=self.config.height,
+            x=0,
+            y=0,
+            width=self.config.width,
+            height=self.config.height,
         )
 
     @override
