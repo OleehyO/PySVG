@@ -44,7 +44,7 @@ Draw rectangles and squares with customizable dimensions.
 ### Content
 Add text strings and images to your SVG graphics.
 
-<img src="assets/content_quickstart.png" alt="Content Example" height="300" />
+<img src="assets/content_quickstart.png" alt="Content Example" height="200" />
 
 [View Example Code](examples/content/quickstart.py)
 
