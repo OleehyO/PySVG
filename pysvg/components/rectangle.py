@@ -36,9 +36,9 @@ class Rectangle(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config else RectangleConfig(),
-            appearance=appearance if appearance else AppearanceConfig(),
-            transform=transform if transform else TransformConfig(),
+            config=config or RectangleConfig(),
+            appearance=appearance or AppearanceConfig(),
+            transform=transform or TransformConfig(),
         )
 
     @override
@@ -51,8 +51,8 @@ class Rectangle(BaseSVGComponent):
     @override
     def get_bounding_box(self) -> BBox:
         return BBox(
-            x=self.config.x,
-            y=self.config.y,
+            x=self.transform.translate[0] + self.config.x,
+            y=self.transform.translate[1] + self.config.y,
             width=self.config.width,
             height=self.config.height,
         )

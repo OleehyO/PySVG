@@ -32,9 +32,9 @@ class Circle(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config else CircleConfig(),
-            appearance=appearance if appearance else AppearanceConfig(),
-            transform=transform if transform else TransformConfig(),
+            config=config or CircleConfig(),
+            appearance=appearance or AppearanceConfig(),
+            transform=transform or TransformConfig(),
         )
 
     @override
@@ -75,8 +75,8 @@ class Circle(BaseSVGComponent):
     @override
     def get_bounding_box(self) -> BBox:
         return BBox(
-            x=self.config.cx - self.config.r,
-            y=self.config.cy - self.config.r,
+            x=self.transform.translate[0] + self.config.cx - self.config.r,
+            y=self.transform.translate[1] + self.config.cy - self.config.r,
             width=2 * self.config.r,
             height=2 * self.config.r,
         )

@@ -2,8 +2,11 @@ from typing import Literal, Tuple
 from pydantic import Field
 from typing_extensions import override
 
-from pysvg.schema import TransformConfig, Color, SVGCode, BBox, ComponentConfig
+from pysvg.schema import TransformConfig, Color, BBox, ComponentConfig
 from pysvg.components.base import BaseSVGComponent
+from pysvg.logger import get_logger
+
+_logger = get_logger(__name__)
 
 
 class TextConfig(ComponentConfig):
@@ -62,24 +65,6 @@ class ImageConfig(ComponentConfig):
         return attrs
 
 
-class SVGConfig(ComponentConfig):
-    """Geometry configuration for SVG components"""
-
-    x: float = Field(default=0, description="SVG x position")
-    y: float = Field(default=0, description="SVG y position")
-    width: float = Field(default=200, ge=0, description="SVG width")
-    height: float = Field(default=200, ge=0, description="SVG height")
-    svg_content: SVGCode = Field(description="Raw SVG component code")
-
-    @override
-    def to_svg_dict(self) -> dict[str, str]:
-        attrs = self.model_dump(exclude_none=True)
-        attrs = {k: str(v) for k, v in attrs.items()}
-        del attrs["svg_content"]
-        attrs.update({"viewBox": f"0 0 {self.width} {self.height}"})
-        return attrs
-
-
 class TextContent(BaseSVGComponent):
     """Text content component for SVG"""
 
@@ -89,12 +74,21 @@ class TextContent(BaseSVGComponent):
     @override
     @property
     def central_point_relative(self) -> Tuple[float, float]:
-        if self.config.text_anchor == "middle" and self.config.dominant_baseline == "central":
-            return (self.config.x, self.config.y)
-        else:
+        if self.config.dominant_baseline != "central":
             raise RuntimeWarning(
-                "When text_anchor or dominant_baseline is not middle or central, we can't determine the relative central point of the text"
+                "When dominant_baseline is not central, we can't determine the relative central point of the text"
             )
+
+        if self.config.text_anchor == "start":
+            _logger.warning(
+                "Text anchor is start, which means we will use the **middle left part** of the text box as the center point",
+            )
+        elif self.config.text_anchor == "end":
+            _logger.warning(
+                "Text anchor is start, which means we will use the **middle right part** of the text box as the center point"
+            )
+
+        return (self.config.x, self.config.y)
 
     @override
     def get_bounding_box(self) -> BBox:
@@ -125,8 +119,8 @@ class ImageContent(BaseSVGComponent):
     @override
     def get_bounding_box(self) -> BBox:
         return BBox(
-            x=self.config.x,
-            y=self.config.y,
+            x=self.transform.translate[0] + self.config.x,
+            y=self.transform.translate[1] + self.config.y,
             width=self.config.width,
             height=self.config.height,
         )
@@ -136,32 +130,3 @@ class ImageContent(BaseSVGComponent):
         attrs = self.get_attr_dict()
         attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
         return f"<image {' '.join(attrs_ls)} />"
-
-
-class SVGContent(BaseSVGComponent):
-    """SVG content component for nested SVG"""
-
-    def __init__(self, config: SVGConfig, transform: TransformConfig | None = None):
-        super().__init__(config=config, transform=transform if transform else TransformConfig())
-
-    @override
-    @property
-    def central_point_relative(self) -> Tuple[float, float]:
-        center_x = self.config.x + self.config.width / 2
-        center_y = self.config.y + self.config.height / 2
-        return (center_x, center_y)
-
-    @override
-    def get_bounding_box(self) -> BBox:
-        return BBox(
-            x=self.config.x,
-            y=self.config.y,
-            width=self.config.width,
-            height=self.config.height,
-        )
-
-    @override
-    def to_svg_element(self) -> str:
-        attrs = self.get_attr_dict()
-        attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
-        return f"<svg {' '.join(attrs_ls)}>{self.config.svg_content}</svg>"

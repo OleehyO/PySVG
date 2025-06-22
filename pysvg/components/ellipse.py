@@ -45,19 +45,19 @@ class Ellipse(BaseSVGComponent):
         return (self.config.cx, self.config.cy)
 
     @override
+    def get_bounding_box(self) -> BBox:
+        return BBox(
+            x=self.transform.translate[0] + self.config.cx - self.config.rx,
+            y=self.transform.translate[1] + self.config.cy - self.config.ry,
+            width=2 * self.config.rx,
+            height=2 * self.config.ry,
+        )
+
+    @override
     def to_svg_element(self) -> str:
         attrs = self.get_attr_dict()
         attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
         return f"<ellipse {' '.join(attrs_ls)} />"
-
-    @override
-    def get_bounding_box(self) -> BBox:
-        return BBox(
-            x=self.config.cx - self.config.rx,
-            y=self.config.cy - self.config.ry,
-            width=2 * self.config.rx,
-            height=2 * self.config.ry,
-        )
 
     def get_area(self) -> float:
         """

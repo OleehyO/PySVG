@@ -72,8 +72,8 @@ class Polyline(BaseSVGComponent):
         y_coords = [y for x, y in self.config.points]
 
         return BBox(
-            x=min(x_coords),
-            y=min(y_coords),
+            x=self.transform.translate[0] + min(x_coords),
+            y=self.transform.translate[1] + min(y_coords),
             width=max(x_coords) - min(x_coords),
             height=max(y_coords) - min(y_coords),
         )

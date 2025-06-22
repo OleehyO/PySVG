@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="800.0" height="600.0" viewBox="0 0 800.0 600.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <text x="400.0" y="50.0" font-size="24.0" font-family="Arial" text-anchor="middle" dominant-baseline="central" fill="darkblue" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">Content Components Demo</text>
-    <text x="100.0" y="150.0" font-size="12" font-family="Arial" text-anchor="start" dominant-baseline="central" fill="purple" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">Left aligned</text>
-    <text x="400.0" y="150.0" font-size="20.0" font-family="Arial" text-anchor="middle" dominant-baseline="central" fill="green" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">Center aligned</text>
-    <text x="700.0" y="150.0" font-size="12" font-family="Arial" text-anchor="end" dominant-baseline="central" fill="red" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">Right aligned</text>
-    <image x="100.0" y="200.0" width="150.0" height="150.0" href="demo.png" preserveAspectRatio="xMidYMid meet" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
-    <image x="325.0" y="200.0" width="150.0" height="150.0" href="demo.png" preserveAspectRatio="xMidYMid meet" transform="translate(0,0) scale(1,1) rotate(45,400.0,275.0) skewX(0) skewY(0)" />
-    <image x="550.0" y="200.0" width="150.0" height="150.0" href="demo.svg" preserveAspectRatio="xMidYMid slice" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
-    <svg x="100.0" y="400.0" width="150.0" height="150.0" viewBox="0 0 150.0 150.0" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">code='<circle cx="75" cy="75" r="50" fill="orange" stroke="red" stroke-width="2"/>'</svg>
-    <svg x="325.0" y="400.0" width="150.0" height="150.0" viewBox="0 0 150.0 150.0" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">code='<rect x="25" y="25" width="100" height="100" fill="lightblue" stroke="blue" stroke-width="2"/>'</svg>
-    <svg x="550.0" y="400.0" width="150.0" height="150.0" viewBox="0 0 150.0 150.0" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">code='<polygon points="75,25 125,125 25,125" fill="lightgreen" stroke="green" stroke-width="2"/>'</svg>
+<svg width="800.0" height="300.0" viewBox="0 0 800.0 300.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <text x="100.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="start" dominant-baseline="central" fill="purple" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">Left aligned</text>
+    <text x="400.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="middle" dominant-baseline="central" fill="green" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">Center aligned</text>
+    <text x="700.0" y="100.0" font-size="20.0" font-family="Arial" text-anchor="end" dominant-baseline="central" fill="red" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)">Right aligned</text>
+    <image x="100.0" y="150.0" width="150.0" height="150.0" href="demo.png" preserveAspectRatio="xMidYMid meet" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
+    <image x="325.0" y="150.0" width="150.0" height="150.0" href="demo.png" preserveAspectRatio="xMidYMid meet" transform="translate(0,0) scale(1,1) rotate(45,400.0,225.0) skewX(0) skewY(0)" />
+    <image x="550.0" y="150.0" width="150.0" height="150.0" href="demo.svg" preserveAspectRatio="xMidYMid slice" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
 </svg>

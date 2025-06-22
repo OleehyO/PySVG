@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="570.0" height="320.0" viewBox="50 30 570 320" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="570.0" height="320.0" viewBox="50 30 490 320" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <line x1="50.0" y1="50.0" x2="550.0" y2="50.0" fill="none" fill-opacity="1.0" stroke="lightgray" stroke-width="1.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <line x1="50.0" y1="100.0" x2="550.0" y2="100.0" fill="none" fill-opacity="1.0" stroke="lightgray" stroke-width="1.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <line x1="50.0" y1="150.0" x2="550.0" y2="150.0" fill="none" fill-opacity="1.0" stroke="lightgray" stroke-width="1.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
@@ -24,7 +24,7 @@
     <line x1="290.0" y1="330.0" x2="310.0" y2="310.0" fill="none" fill-opacity="1.0" stroke="navy" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <line x1="310.0" y1="310.0" x2="330.0" y2="330.0" fill="none" fill-opacity="1.0" stroke="navy" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
     <line x1="330.0" y1="330.0" x2="350.0" y2="320.0" fill="none" fill-opacity="1.0" stroke="navy" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(0,0) scale(1,1) rotate(0,0,0) skewX(0) skewY(0)" />
-    <line x1="0.0" y1="0.0" x2="80.0" y2="0.0" fill="none" fill-opacity="1.0" stroke="gold" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(450,320) scale(1,1) rotate(15,40.0,0.0) skewX(0) skewY(0)" />
-    <line x1="0.0" y1="0.0" x2="80.0" y2="0.0" fill="none" fill-opacity="1.0" stroke="gold" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(450,320) scale(1,1) rotate(45,40.0,0.0) skewX(0) skewY(0)" />
-    <line x1="0.0" y1="0.0" x2="80.0" y2="0.0" fill="none" fill-opacity="1.0" stroke="gold" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(450,320) scale(1,1) rotate(75,40.0,0.0) skewX(0) skewY(0)" />
+    <line x1="0.0" y1="0.0" x2="80.0" y2="0.0" fill="none" fill-opacity="1.0" stroke="gold" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(410.0,320.0) scale(1,1) rotate(15,40.0,0.0) skewX(0) skewY(0)" />
+    <line x1="0.0" y1="0.0" x2="80.0" y2="0.0" fill="none" fill-opacity="1.0" stroke="gold" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(410.0,320.0) scale(1,1) rotate(45,40.0,0.0) skewX(0) skewY(0)" />
+    <line x1="0.0" y1="0.0" x2="80.0" y2="0.0" fill="none" fill-opacity="1.0" stroke="gold" stroke-width="3.0" stroke-opacity="1.0" stroke-linecap="butt" transform="translate(410.0,320.0) scale(1,1) rotate(75,40.0,0.0) skewX(0) skewY(0)" />
 </svg>

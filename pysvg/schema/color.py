@@ -17,7 +17,7 @@ class Color(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    value: str = Field(..., description="Color value")
+    value: str = Field(description="Color value")
 
     def __init__(self, value: str | dict | None = None, **data):
         if isinstance(value, str):

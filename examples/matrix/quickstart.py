@@ -12,10 +12,9 @@ This is a quick start guide for the Matrix component, demonstrating the most com
 7. Comprehensive examples
 """
 
-from pathlib import Path
-from pysvg.components import Matrix, MatrixConfig
+from pysvg.components import Matrix, MatrixConfig, Circle, CircleConfig, Polyline, PolylineConfig
 from pysvg.components.content import TextContent, TextConfig
-from pysvg.schema import AppearanceConfig, Color, SVGCode
+from pysvg.schema import AppearanceConfig, Color
 from pysvg.components.canvas import Canvas
 
 
@@ -26,13 +25,13 @@ def basic_matrix_examples():
     # 1. Simple numeric matrix
     simple_data = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 
-    simple_matrix = Matrix(data=simple_data, config=MatrixConfig(x=10, y=10, cell_size=50))
+    simple_matrix = Matrix(data=simple_data, config=MatrixConfig(cell_size=50))
     print(f"Simple matrix: {simple_matrix.to_svg_element()}")
 
     # 2. String matrix
     string_data = [["A", "B", "C"], ["D", "E", "F"]]
 
-    string_matrix = Matrix(data=string_data, config=MatrixConfig(x=200, y=10, cell_size=60))
+    string_matrix = Matrix(data=string_data, config=MatrixConfig(cell_size=60))
     print(f"String matrix: {string_matrix.to_svg_element()}")
     print()
 
@@ -45,44 +44,24 @@ def element_mapping_examples():
     data = [[1, 0, 1], [0, 1, 0], [1, 0, 1]]
 
     # Element mapping: 0 -> "Empty", 1 -> "Full"
-    element_map = {0: "Empty", 1: "Full"}
+    element_map = {
+        0: TextContent(config=TextConfig(text="Empty")),
+        1: TextContent(config=TextConfig(text="Full")),
+    }
 
-    mapped_matrix = Matrix(
-        data=data, element_map=element_map, config=MatrixConfig(x=10, y=150, cell_size=60)
-    )
+    mapped_matrix = Matrix(data=data, element_map=element_map, config=MatrixConfig(cell_size=60))
     print(f"Mapped matrix: {mapped_matrix.to_svg_element()}")
     print()
 
 
-def appearance_examples():
-    """Appearance customization examples"""
-    print("=== Appearance Examples ===")
+def background_map_example():
+    """Background map example"""
+    print("=== Background Map Example ===")
 
     data = [[1, 2, 3], [4, 5, 6]]
 
-    # 1. Using appearance matrix
-    appearance_matrix = [
-        [
-            AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue")),
-            AppearanceConfig(fill=Color("lightgreen"), stroke=Color("green")),
-            AppearanceConfig(fill=Color("lightcoral"), stroke=Color("red")),
-        ],
-        [
-            AppearanceConfig(fill=Color("lightyellow"), stroke=Color("orange")),
-            AppearanceConfig(fill=Color("lightpink"), stroke=Color("purple")),
-            AppearanceConfig(fill=Color("lightgray"), stroke=Color("black")),
-        ],
-    ]
-
-    appearance_matrix_example = Matrix(
-        data=data,
-        appearance_matrix=appearance_matrix,
-        config=MatrixConfig(x=10, y=280, cell_size=70),
-    )
-    print(f"Appearance matrix: {appearance_matrix_example.to_svg_element()}")
-
-    # 2. Using element appearance mapping
-    element_appearance_map = {
+    # Using element appearance mapping
+    bgmap = {
         1: AppearanceConfig(fill=Color("red"), stroke=Color("darkred"), stroke_width=2),
         2: AppearanceConfig(fill=Color("green"), stroke=Color("darkgreen"), stroke_width=2),
         3: AppearanceConfig(fill=Color("blue"), stroke=Color("darkblue"), stroke_width=2),
@@ -93,8 +72,8 @@ def appearance_examples():
 
     element_appearance_example = Matrix(
         data=data,
-        element_appearance_map=element_appearance_map,
-        config=MatrixConfig(x=250, y=280, cell_size=70),
+        background_map=bgmap,
+        config=MatrixConfig(cell_size=70),
     )
     print(f"Element appearance mapping: {element_appearance_example.to_svg_element()}")
     print()
@@ -105,27 +84,27 @@ def caption_examples():
     print("=== Caption Examples ===")
 
     data = [[1, 2], [3, 4]]
-
-    # Create captions for different positions
-    caption = TextContent(
-        config=TextConfig(text="Example Matrix", font_size=16, color=Color("black"))
-    )
+    caption = "Example Matrix"
 
     # Top caption
     top_caption_matrix = Matrix(
         data=data,
         caption=caption,
+        caption_font_size=16,
+        caption_font_color=Color("black"),
         caption_location="top",
-        config=MatrixConfig(x=10, y=450, cell_size=60),
-    )
+        config=MatrixConfig(cell_size=60),
+    ).move_by(0, 100)
     print(f"Top caption: {top_caption_matrix.to_svg_element()}")
 
     # Bottom caption
     down_caption_matrix = Matrix(
         data=data,
         caption=caption,
+        caption_font_size=16,
+        caption_font_color=Color("black"),
         caption_location="down",
-        config=MatrixConfig(x=150, y=450, cell_size=60),
+        config=MatrixConfig(cell_size=60),
     )
     print(f"Bottom caption: {down_caption_matrix.to_svg_element()}")
 
@@ -133,77 +112,23 @@ def caption_examples():
     left_caption_matrix = Matrix(
         data=data,
         caption=caption,
+        caption_font_size=16,
+        caption_font_color=Color("black"),
         caption_location="left",
-        config=MatrixConfig(x=320, y=450, cell_size=60),
-    )
+        config=MatrixConfig(cell_size=60),
+    ).move_by(300, 0)
     print(f"Left caption: {left_caption_matrix.to_svg_element()}")
 
     # Right caption
     right_caption_matrix = Matrix(
         data=data,
         caption=caption,
+        caption_font_size=16,
+        caption_font_color=Color("black"),
         caption_location="right",
-        config=MatrixConfig(x=450, y=450, cell_size=60),
-    )
+        config=MatrixConfig(cell_size=60),
+    ).move(200, 200)
     print(f"Right caption: {right_caption_matrix.to_svg_element()}")
-    print()
-
-
-def font_styling_examples():
-    """Font styling examples"""
-    print("=== Font Styling Examples ===")
-
-    data = [["Hello", "World"], ["Font", "Style"]]
-
-    # Create matrix with custom font
-    font_matrix = Matrix(data=data, config=MatrixConfig(x=10, y=600, cell_size=80))
-
-    # Set font styles
-    font_matrix.set_font_family("Arial").set_font_size(16).set_font_color(Color("darkblue"))
-
-    print(f"Font styling: {font_matrix.to_svg_element()}")
-    print()
-
-
-def method_chaining_examples():
-    """Method chaining examples"""
-    print("=== Method Chaining Examples ===")
-
-    data = [["A", "B"], ["C", "D"]]
-
-    # Chain method calls to set various properties
-    chained_matrix = (
-        Matrix(data=data, config=MatrixConfig(x=200, y=600))
-        .set_cell_size(90)
-        .set_pad(10)
-        .set_font_size(20)
-        .set_font_color(Color("white"))
-        .set_global_appearance(
-            AppearanceConfig(fill=Color("navy"), stroke=Color("gold"), stroke_width=3)
-        )
-    )
-
-    print(f"Method chaining: {chained_matrix.to_svg_element()}")
-    print()
-
-
-def svg_content_examples():
-    """SVG content examples"""
-    print("=== SVG Content Examples ===")
-
-    # Create matrix with SVG content
-    svg_circle = SVGCode(
-        '<circle cx="25" cy="25" r="15" fill="red" stroke="darkred" stroke-width="2"/>'
-    )
-    svg_rect = SVGCode(
-        '<rect x="10" y="10" width="30" height="30" fill="blue" stroke="darkblue" stroke-width="2"/>'
-    )
-
-    svg_data = [[svg_circle, "Text"], ["Mixed", svg_rect]]
-
-    svg_matrix = Matrix(data=svg_data, config=MatrixConfig(x=350, y=600, cell_size=80))
-
-    print(f"SVG content: {svg_matrix.to_svg_element()}")
     print()
 
 
@@ -215,7 +140,10 @@ def comprehensive_example():
     data = [[1, 0, 1, 0], [0, 1, 0, 1], [1, 0, 1, 0], [0, 1, 0, 1]]
 
     # Element mapping
-    element_map = {0: "○", 1: "●"}
+    element_map = {
+        0: TextContent(config=TextConfig(text="○")),
+        1: TextContent(config=TextConfig(text="●", color=Color("gray"))),
+    }
 
     # Element appearance mapping
     element_appearance_map = {
@@ -224,22 +152,18 @@ def comprehensive_example():
     }
 
     # Caption text
-    caption = TextContent(
-        config=TextConfig(text="Checkerboard Pattern", font_size=18, color=Color("darkblue"))
-    )
+    caption = "Checkerboard Pattern"
 
     # Create comprehensive matrix
-    comprehensive_matrix = (
-        Matrix(
-            data=data,
-            element_map=element_map,
-            element_appearance_map=element_appearance_map,
-            caption=caption,
-            caption_location="top",
-            config=MatrixConfig(x=50, y=750, cell_size=60),
-        )
-        .set_font_size(24)
-        .set_font_color(Color("white"))
+    comprehensive_matrix = Matrix(
+        data=data,
+        element_map=element_map,
+        background_map=element_appearance_map,
+        caption=caption,
+        caption_font_size=18,
+        caption_font_color=Color("darkblue"),
+        caption_location="top",
+        config=MatrixConfig(cell_size=60),
     )
 
     print(f"Comprehensive example: {comprehensive_matrix.to_svg_element()}")
@@ -253,16 +177,16 @@ def generate_demo_svg():
     print("=== Generating Demo SVG ===")
 
     # Create canvas
-    canvas = Canvas(width=710, height=480)
+    canvas = Canvas(width=750, height=500)
 
     # 1. Basic numeric matrix
     simple_data = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    simple_matrix = Matrix(data=simple_data, config=MatrixConfig(x=50, y=50, cell_size=50))
+    simple_matrix = Matrix(data=simple_data, config=MatrixConfig(cell_size=50)).move_by(50, 50)
     canvas.add(simple_matrix)
 
     # 2. Colored matrix
     colored_data = [["R", "G", "B"], ["C", "M", "Y"]]
-    element_appearance_map = {
+    bgmap = {
         "R": AppearanceConfig(fill=Color("red"), stroke=Color("darkred"), stroke_width=2),
         "G": AppearanceConfig(fill=Color("green"), stroke=Color("darkgreen"), stroke_width=2),
         "B": AppearanceConfig(fill=Color("blue"), stroke=Color("darkblue"), stroke_width=2),
@@ -273,47 +197,55 @@ def generate_demo_svg():
     colored_matrix = (
         Matrix(
             data=colored_data,
-            element_appearance_map=element_appearance_map,
-            config=MatrixConfig(x=250, y=50, cell_size=60),
+            background_map=bgmap,
+            config=MatrixConfig(cell_size=60),
         )
-        .set_font_size(18)
-        .set_font_color(Color("white"))
-    )
+    ).move_by(290, 50)
     canvas.add(colored_matrix)
 
     # 3. Matrix with caption
     caption_data = [[1, 0, 1], [0, 1, 0], [1, 0, 1]]
-    element_map = {0: "○", 1: "●"}
-    caption = TextContent(
-        config=TextConfig(text="Pattern Matrix", font_size=16, color=Color("navy"))
-    )
+    element_map = {
+        0: TextContent(config=TextConfig(text="○")),
+        1: TextContent(config=TextConfig(text="●")),
+    }
+    caption = "Pattern Matrix"
     caption_matrix = Matrix(
         data=caption_data,
         element_map=element_map,
         caption=caption,
         caption_location="top",
-        config=MatrixConfig(x=500, y=50, cell_size=50),
-    ).set_font_size(20)
+        caption_font_size=20,
+        caption_font_color=Color("navy"),
+        config=MatrixConfig(cell_size=50),
+    ).move_by(500, 50)
     canvas.add(caption_matrix)
 
     # 4. SVG content matrix
-    svg_circle = SVGCode('<circle cx="20" cy="20" r="12" fill="red"/>')
-    svg_triangle = SVGCode('<polygon points="20,8 8,32 32,32" fill="blue"/>')
-    svg_data = [[svg_circle, svg_triangle], ["Circle", "Triangle"]]
+    circle = Circle(
+        config=CircleConfig(cx=20, cy=20, r=12), appearance=AppearanceConfig(fill=Color("red"))
+    )
+    triangle = Polyline(
+        config=PolylineConfig(points=[(20, 8), (8, 32), (32, 32)]),
+        appearance=AppearanceConfig(fill=Color("blue")),
+    )
+    data = [["circle-component", "triangle-component"], ["Circle", "Triangle"]]
+    element_map = {
+        "circle-component": circle,
+        "triangle-component": triangle,
+    }
     svg_matrix = Matrix(
-        data=svg_data, config=MatrixConfig(x=50, y=250, cell_size=70)
-    ).set_font_size(12)
+        data=data, element_map=element_map, config=MatrixConfig(cell_size=70)
+    ).move_by(50, 250)
     canvas.add(svg_matrix)
 
     # 5. Large matrix example
     large_data = [[i + j * 5 + 1 for i in range(5)] for j in range(4)]
+    appearance = AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue"), stroke_width=1)
+    bgmap = {i: appearance for i in range(1, 21)}
     large_matrix = (
-        Matrix(data=large_data, config=MatrixConfig(x=250, y=250, cell_size=40))
-        .set_font_size(14)
-        .set_global_appearance(
-            AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue"), stroke_width=1)
-        )
-    )
+        Matrix(data=large_data, background_map=bgmap, config=MatrixConfig(cell_size=40))
+    ).move_by(270, 250)
     canvas.add(large_matrix)
 
     # 6. Checkerboard pattern (comprehensive example)
@@ -324,22 +256,26 @@ def generate_demo_svg():
         [0, 1, 0, 1, 0],
         [1, 0, 1, 0, 1],
     ]
-    checkerboard_map = {0: " ", 1: " "}
+    checkerboard_map = {
+        0: TextContent(config=TextConfig(text="")),
+        1: TextContent(config=TextConfig(text="")),
+    }
     checkerboard_appearance = {
         0: AppearanceConfig(fill=Color("white"), stroke=Color("black"), stroke_width=1),
         1: AppearanceConfig(fill=Color("black"), stroke=Color("gray"), stroke_width=1),
     }
-    checkerboard_caption = TextContent(
-        config=TextConfig(text="Checkerboard Pattern", font_size=18, color=Color("darkgreen"))
-    )
+    checkerboard_caption = "Checkerboard Pattern"
     checkerboard_matrix = Matrix(
         data=checkerboard_data,
         element_map=checkerboard_map,
-        element_appearance_map=checkerboard_appearance,
+        background_map=checkerboard_appearance,
         caption=checkerboard_caption,
         caption_location="down",
-        config=MatrixConfig(x=500, y=250, cell_size=40),
+        caption_font_size=18,
+        caption_font_color=Color("darkgreen"),
+        config=MatrixConfig(cell_size=40),
     )
+    checkerboard_matrix.move_by(500, 250)
     canvas.add(checkerboard_matrix)
 
     # Generate and save SVG file
@@ -356,11 +292,8 @@ def main():
     # Run all examples
     basic_matrix_examples()
     element_mapping_examples()
-    appearance_examples()
+    background_map_example()
     caption_examples()
-    font_styling_examples()
-    method_chaining_examples()
-    svg_content_examples()
     comprehensive_example()
 
     # Generate demo SVG
