@@ -115,14 +115,14 @@ class Matrix(BaseSVGComponent):
         # Caption related settings
         self._caption = (
             TextContent(
+                text=caption,
                 config=TextConfig(
-                    text=caption,
                     font_size=caption_font_size,
                     font_family=caption_font_family,
                     color=caption_font_color,
                     text_anchor="middle",
                     dominant_baseline="central",
-                )
+                ),
             )
             if caption
             else None
@@ -224,7 +224,7 @@ class Matrix(BaseSVGComponent):
                 # Get actual element (considering mapping)
                 original_elem = self._data[i][j]
                 actual_elem: BaseSVGComponent = self._element_map.get(
-                    original_elem, TextContent(config=TextConfig(text=str(original_elem)))
+                    original_elem, TextContent(str(original_elem))
                 )
                 bg_appearance = self._background_map.get(
                     original_elem, AppearanceConfig(fill=Color("none"), stroke=Color("black"))

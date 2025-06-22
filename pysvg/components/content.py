@@ -18,7 +18,6 @@ class TextConfig(ComponentConfig):
     y: float = Field(
         default=0, description="Text y position , central(default) or left-upper corner)"
     )
-    text: str = Field(default="", description="Text content to display")
     font_size: float = Field(default=12, ge=0, description="Font size")
     font_family: str = Field(default="Arial", description="Font family")
     color: Color = Field(default=Color("black"), description="Text color")
@@ -41,8 +40,6 @@ class TextConfig(ComponentConfig):
         }
         if "color" in attrs:
             attrs["fill"] = attrs.pop("color")
-        if "text" in attrs:
-            del attrs["text"]
         return attrs
 
 
@@ -53,7 +50,6 @@ class ImageConfig(ComponentConfig):
     y: float = Field(default=0, description="Image y position")
     width: float = Field(default=200, ge=0, description="Image width")
     height: float = Field(default=200, ge=0, description="Image height")
-    href: str = Field(description="Image path or URL")
     preserveAspectRatio: str = Field(
         default="xMidYMid meet", description="How to preserve aspect ratio"
     )
@@ -68,8 +64,11 @@ class ImageConfig(ComponentConfig):
 class TextContent(BaseSVGComponent):
     """Text content component for SVG"""
 
-    def __init__(self, config: TextConfig, transform: TransformConfig | None = None):
-        super().__init__(config=config, transform=transform if transform else TransformConfig())
+    def __init__(
+        self, text: str, config: TextConfig | None = None, transform: TransformConfig | None = None
+    ):
+        super().__init__(config=config or TextConfig(), transform=transform or TransformConfig())
+        self.text = text
 
     @override
     @property
@@ -100,14 +99,17 @@ class TextContent(BaseSVGComponent):
     def to_svg_element(self) -> str:
         attrs = self.get_attr_dict()
         attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
-        return f"<text {' '.join(attrs_ls)}>{self.config.text}</text>"
+        return f"<text {' '.join(attrs_ls)}>{self.text}</text>"
 
 
 class ImageContent(BaseSVGComponent):
     """Image content component for SVG"""
 
-    def __init__(self, config: ImageConfig, transform: TransformConfig | None = None):
-        super().__init__(config=config, transform=transform if transform else TransformConfig())
+    def __init__(
+        self, href: str, config: ImageConfig | None = None, transform: TransformConfig | None = None
+    ):
+        super().__init__(config=config or ImageConfig(), transform=transform or TransformConfig())
+        self.href = href
 
     @override
     @property
@@ -128,5 +130,6 @@ class ImageContent(BaseSVGComponent):
     @override
     def to_svg_element(self) -> str:
         attrs = self.get_attr_dict()
+        attrs["href"] = self.href
         attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
         return f"<image {' '.join(attrs_ls)} />"

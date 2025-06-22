@@ -46,9 +46,9 @@ class Polyline(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config else PolylineConfig(),
-            appearance=appearance if appearance else AppearanceConfig(),
-            transform=transform if transform else TransformConfig(),
+            config=config or PolylineConfig(),
+            appearance=appearance or AppearanceConfig(),
+            transform=transform or TransformConfig(),
         )
 
     @override

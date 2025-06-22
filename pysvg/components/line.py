@@ -34,9 +34,9 @@ class Line(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config else LineConfig(),
-            appearance=appearance if appearance else AppearanceConfig(),
-            transform=transform if transform else TransformConfig(),
+            config=config or LineConfig(),
+            appearance=appearance or AppearanceConfig(),
+            transform=transform or TransformConfig(),
         )
 
     @override

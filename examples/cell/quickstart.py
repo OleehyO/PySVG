@@ -48,7 +48,7 @@ def content_examples():
             width=120,
             height=60,
             embed_component=TextContent(
-                config=TextConfig(text="Hello World", font_size=16, color=Color("darkblue"))
+                "Hello World", config=TextConfig(font_size=16, color=Color("darkblue"))
             ),
         ),
         appearance=AppearanceConfig(
@@ -62,7 +62,7 @@ def content_examples():
         config=CellConfig(
             width=100,
             height=60,
-            embed_component=ImageContent(config=ImageConfig(href="demo.png")),
+            embed_component=ImageContent("demo.png"),
             padding=5,
         ),
         appearance=AppearanceConfig(
@@ -106,7 +106,7 @@ def styling_examples():
             height=50,
             rx=15,
             ry=15,  # Rounded corners
-            embed_component=TextContent(config=TextConfig(text="Rounded")),
+            embed_component=TextContent("Rounded"),
         ),
         appearance=AppearanceConfig(fill=Color("coral"), stroke=Color("darkred"), stroke_width=2),
     ).move(0, 80)
@@ -117,7 +117,7 @@ def styling_examples():
         config=CellConfig(
             width=100,
             height=50,
-            embed_component=TextContent(config=TextConfig(text="Transparent", color="black")),
+            embed_component=TextContent("Transparent", config=TextConfig(color="black")),
         ),
         appearance=AppearanceConfig(
             fill=Color("skyblue"),
@@ -130,9 +130,7 @@ def styling_examples():
 
     # 3. Dashed border
     dashed_cell = Cell(
-        config=CellConfig(
-            width=100, height=50, embed_component=TextContent(config=TextConfig(text="Dashed"))
-        ),
+        config=CellConfig(width=100, height=50, embed_component=TextContent("Dashed")),
         appearance=AppearanceConfig(
             fill=Color("lightgreen"),
             stroke=Color("green"),
@@ -153,7 +151,7 @@ def transform_examples():
         config=CellConfig(
             width=80,
             height=40,
-            embed_component=TextContent(config=TextConfig(text="Moved", font_size=10)),
+            embed_component=TextContent("Moved", config=TextConfig(font_size=10)),
         ),
     ).move(150, 170)
     print(f"Moved cell: {moved_cell.to_svg_element()}")
@@ -164,7 +162,7 @@ def transform_examples():
             config=CellConfig(
                 width=80,
                 height=40,
-                embed_component=TextContent(config=TextConfig(text="Rotated", font_size=10)),
+                embed_component=TextContent("Rotated", config=TextConfig(font_size=10)),
             ),
         )
         .move(50, 150)
@@ -178,7 +176,7 @@ def transform_examples():
             config=CellConfig(
                 width=80,
                 height=40,
-                embed_component=TextContent(config=TextConfig(text="Scaled", font_size=10)),
+                embed_component=TextContent("Scaled", config=TextConfig(font_size=10)),
             ),
         )
         .scale(1.5)
@@ -197,7 +195,7 @@ def chaining_examples():
         config=CellConfig(
             width=100,
             height=50,
-            embed_component=TextContent(config=TextConfig(text="Chained")),
+            embed_component=TextContent("Chained"),
         ),
         appearance=AppearanceConfig(fill=Color("purple"), stroke=Color("darkblue"), stroke_width=2),
     )
@@ -221,7 +219,7 @@ def utility_examples():
         config=CellConfig(
             width=100,
             height=60,
-            embed_component=TextContent(config=TextConfig(text="Test Cell")),
+            embed_component=TextContent("Test Cell"),
             padding=10,
         ),
         appearance=AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue"), stroke_width=2),
@@ -244,13 +242,13 @@ def generate_demo_svg():
 
     for text, x in labels:
         label = TextContent(
+            text,
             config=TextConfig(
-                text=text,
                 font_size=20,
                 font_family="Arial",
                 color=Color("gray"),
                 text_anchor="middle",
-            )
+            ),
         ).move(x, 100)
         canvas.add(label)
 
@@ -266,7 +264,7 @@ def generate_demo_svg():
             config=CellConfig(
                 width=120,
                 height=50,
-                embed_component=TextContent(config=TextConfig(text="Text Cell", font_size=14)),
+                embed_component=TextContent("Text Cell", config=TextConfig(font_size=14)),
             ),
             appearance=AppearanceConfig(fill=Color("lightblue"), stroke=Color("blue")),
         ).move(200, 50),
@@ -277,15 +275,13 @@ def generate_demo_svg():
                 height=50,
                 rx=15,
                 ry=15,
-                embed_component=TextContent(config=TextConfig(text="Rounded")),
+                embed_component=TextContent("Rounded"),
             ),
             appearance=AppearanceConfig(fill=Color("lightgreen"), stroke=Color("green")),
         ).move(330, 50),
         # Rotated cell
         Cell(
-            config=CellConfig(
-                width=100, height=50, embed_component=TextContent(config=TextConfig(text="Rotated"))
-            ),
+            config=CellConfig(width=100, height=50, embed_component=TextContent("Rotated")),
             appearance=AppearanceConfig(fill=Color("lightcoral"), stroke=Color("red")),
         )
         .move(450, 50)

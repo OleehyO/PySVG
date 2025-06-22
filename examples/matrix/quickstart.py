@@ -45,8 +45,8 @@ def element_mapping_examples():
 
     # Element mapping: 0 -> "Empty", 1 -> "Full"
     element_map = {
-        0: TextContent(config=TextConfig(text="Empty")),
-        1: TextContent(config=TextConfig(text="Full")),
+        0: TextContent("Empty"),
+        1: TextContent("Full"),
     }
 
     mapped_matrix = Matrix(data=data, element_map=element_map, config=MatrixConfig(cell_size=60))
@@ -141,8 +141,8 @@ def comprehensive_example():
 
     # Element mapping
     element_map = {
-        0: TextContent(config=TextConfig(text="○")),
-        1: TextContent(config=TextConfig(text="●", color=Color("gray"))),
+        0: TextContent("○"),
+        1: TextContent("●", config=TextConfig(color=Color("gray"))),
     }
 
     # Element appearance mapping
@@ -206,8 +206,8 @@ def generate_demo_svg():
     # 3. Matrix with caption
     caption_data = [[1, 0, 1], [0, 1, 0], [1, 0, 1]]
     element_map = {
-        0: TextContent(config=TextConfig(text="○")),
-        1: TextContent(config=TextConfig(text="●")),
+        0: TextContent("○"),
+        1: TextContent("●"),
     }
     caption = "Pattern Matrix"
     caption_matrix = Matrix(
@@ -257,8 +257,8 @@ def generate_demo_svg():
         [1, 0, 1, 0, 1],
     ]
     checkerboard_map = {
-        0: TextContent(config=TextConfig(text="")),
-        1: TextContent(config=TextConfig(text="")),
+        0: TextContent(""),
+        1: TextContent(""),
     }
     checkerboard_appearance = {
         0: AppearanceConfig(fill=Color("white"), stroke=Color("black"), stroke_width=1),

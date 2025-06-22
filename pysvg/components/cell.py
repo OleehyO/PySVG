@@ -17,7 +17,7 @@ class CellConfig(RectangleConfig):
     model_config = {"arbitrary_types_allowed": True}
 
     embed_component: BaseSVGComponent = Field(
-        default=TextContent(config=TextConfig(text="")),
+        default=TextContent(""),
         description="Component to embed inside the cell",
     )
     padding: float = Field(default=5, ge=0, description="Padding around the embedded component")

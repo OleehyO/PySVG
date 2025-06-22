@@ -227,9 +227,7 @@ def priority_demonstration_example():
     }
     element_map = {
         elem: TextContent(
-            config=TextConfig(
-                text=str(elem), color=Color("blue"), font_family="Times", font_size=20
-            )
+            str(elem), config=TextConfig(color=Color("blue"), font_family="Times", font_size=20)
         )
         for elem in all_elems
     }

@@ -34,9 +34,9 @@ class Ellipse(BaseSVGComponent):
         transform: TransformConfig | None = None,
     ):
         super().__init__(
-            config=config if config else EllipseConfig(),
-            appearance=appearance if appearance else AppearanceConfig(),
-            transform=transform if transform else TransformConfig(),
+            config=config or EllipseConfig(),
+            appearance=appearance or AppearanceConfig(),
+            transform=transform or TransformConfig(),
         )
 
     @override
