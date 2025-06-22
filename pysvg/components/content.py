@@ -85,7 +85,7 @@ class TextContent(BaseSVGComponent):
             )
         elif self.config.text_anchor == "end":
             _logger.warning(
-                "Text anchor is start, which means we will use the **middle right part** of the text box as the center point"
+                "Text anchor is end, which means we will use the **middle right part** of the text box as the center point"
             )
 
         return (self.config.x, self.config.y)
