@@ -11,8 +11,8 @@ class RectangleConfig(ComponentConfig):
 
     x: float = Field(default=0, description="Rectangle's left x coordinate")
     y: float = Field(default=0, description="Rectangle's top y coordinate")
-    width: float = Field(default=200, gt=0, description="Rectangle width (must be non-negative)")
-    height: float = Field(default=100, gt=0, description="Rectangle height (must be non-negative)")
+    width: float = Field(default=200, gt=0, description="Rectangle width must be positive")
+    height: float = Field(default=100, gt=0, description="Rectangle height must be positive")
     rx: float | None = Field(default=None, ge=0, description="X-axis radius for rounded corners")
     ry: float | None = Field(default=None, ge=0, description="Y-axis radius for rounded corners")
 
