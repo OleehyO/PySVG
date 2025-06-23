@@ -92,6 +92,13 @@ All components are located in the `pysvg/components` directory. For detailed usa
 
 * For ease of use, transform operations in PySVG are commutative. For example, `foo.rotate(p1).move(p2)` is equivalent to `foo.move(p2).rotate(p1)`. This differs from standard SVG behavior because we automatically arrange transform attributes in a fixed order: translate, scale, rotate, skewX, and skewY.
 
+* `component.scale(..)` in PySVG is different from the standard SVG scale method.
+    1. The standard SVG scale method scales the component from the center,
+       while this method scales the component from the left top corner.
+    2. We strictly scale according to the size of the graphic bounding box area, which is different from standard SVG
+
+* Each type of operation only takes effect once, depending on the last operation. For example, `foo.scale(0.5).scale(2)` is equivalent to `foo.scale(2)`.
+
 
 ## Contributing
 
