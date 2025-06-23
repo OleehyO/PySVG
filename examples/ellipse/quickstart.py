@@ -101,7 +101,7 @@ def transform_examples():
     # 4. Non-uniform scaling
     non_uniform_scaled = Ellipse(
         config=EllipseConfig(rx=25, ry=25),
-    ).scale((2.0, 0.8))
+    ).scale(0.8)
     print(f"Non-uniform scaled ellipse: {non_uniform_scaled.to_svg_element()}")
 
     # 5. Combined transformations
@@ -239,8 +239,8 @@ def generate_demo_svg():
                 fill=Color("lightsteelblue"), stroke=Color("steelblue"), stroke_width=2
             ),
         )
-        .scale((2.0, 1.2))
-        .move(500, 200),
+        .scale(1.2)
+        .move(600, 200),
         # Create petal effect (multiple rotated ellipses)
         Ellipse(
             config=EllipseConfig(rx=60, ry=15),
@@ -303,23 +303,23 @@ def generate_demo_svg():
             appearance=AppearanceConfig(
                 fill=Color("lightcyan"), stroke=Color("cyan"), stroke_width=2
             ),
-        ).move(400, 350),
+        ).move(350, 350),
         Ellipse(
             config=EllipseConfig(rx=60, ry=37),
             appearance=AppearanceConfig(
                 fill=Color("lightblue"), stroke=Color("blue"), stroke_width=2
             ),
-        ).move(400, 350),
+        ).move(350, 350),
         Ellipse(
             config=EllipseConfig(rx=40, ry=25),
             appearance=AppearanceConfig(
                 fill=Color("lightsteelblue"), stroke=Color("steelblue"), stroke_width=2
             ),
-        ).move(400, 350),
+        ).move(350, 350),
         Ellipse(
             config=EllipseConfig(rx=20, ry=12),
             appearance=AppearanceConfig(fill=Color("white"), stroke=Color("navy"), stroke_width=1),
-        ).move(400, 350),
+        ).move(350, 350),
         # Ellipse chain
         Ellipse(
             config=EllipseConfig(rx=30, ry=15),

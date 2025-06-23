@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Literal
 from typing_extensions import override
 
 from pysvg.schema import AppearanceConfig, TransformConfig, BBox
@@ -77,6 +77,49 @@ class Polyline(BaseSVGComponent):
             width=max(x_coords) - min(x_coords),
             height=max(y_coords) - min(y_coords),
         )
+
+    @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "Polyline":
+        if not self.config.points:
+            return self
+
+        current_width = self.get_bounding_box().width
+        current_height = self.get_bounding_box().height
+
+        # Calculate scale factors for width and height
+        width_scale = width / current_width if current_width > 0 else float("inf")
+        height_scale = height / current_height if current_height > 0 else float("inf")
+
+        # Use the smaller scale factor to ensure the polyline fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if mode == "fit" and scale_factor >= 1.0:
+            return self
+
+        # Get current center point
+        center_x, center_y = self.central_point_relative
+
+        # Scale all points relative to the center
+        scaled_points = []
+        for x, y in self.config.points:
+            # Calculate offset from center
+            dx = x - center_x
+            dy = y - center_y
+
+            # Scale the offset
+            scaled_dx = dx * scale_factor
+            scaled_dy = dy * scale_factor
+
+            # Calculate new position
+            new_x = center_x + scaled_dx
+            new_y = center_y + scaled_dy
+
+            scaled_points.append((new_x, new_y))
+
+        self.config.points = scaled_points
+        return self
 
     @override
     def to_svg_element(self) -> str:

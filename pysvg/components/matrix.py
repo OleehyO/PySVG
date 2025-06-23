@@ -97,16 +97,16 @@ class Matrix(BaseSVGComponent):
         if not all(len(row) == cols for row in data):
             raise ValueError("Matrix data must be rectangular")
 
+        # Matrix properties
+        self._data = data
+        self._rows = rows
+        self._cols = cols
+
         # Validate caption and caption_location pairing
         if caption is not None and caption_location is None:
             raise ValueError("caption_location must be provided when caption is specified")
         if caption_location is not None and caption is None:
             raise ValueError("caption must be provided when caption_location is specified")
-
-        # Matrix properties
-        self._rows = rows
-        self._cols = cols
-        self._data = data
 
         # Store element and background maps
         self._element_map = element_map
@@ -135,6 +135,14 @@ class Matrix(BaseSVGComponent):
         self._coord_font_size: float = coord_font_size
         self._coord_font_family: str = coord_font_family
         self._coord_color: Color = coord_font_color
+
+    @property
+    def width(self) -> float:
+        return self._cols * self.config.cell_size
+
+    @property
+    def height(self) -> float:
+        return self._rows * self.config.cell_size
 
     @override
     @property
@@ -172,13 +180,10 @@ class Matrix(BaseSVGComponent):
 
     @override
     def get_bounding_box(self) -> BBox:
-        matrix_width = self._cols * self.config.cell_size
-        matrix_height = self._rows * self.config.cell_size
-
         min_x = self.config.x
         min_y = self.config.y
-        max_x = self.config.x + matrix_width
-        max_y = self.config.y + matrix_height
+        max_x = self.config.x + self.width
+        max_y = self.config.y + self.height
 
         # Consider caption position
         if self._caption is not None:
@@ -191,6 +196,18 @@ class Matrix(BaseSVGComponent):
             width=max_x - min_x,
             height=max_y - min_y,
         )
+
+    @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "Matrix":
+        cp_origin = self.central_point_relative
+        ratio = min(width / self.width, height / self.height)
+        if mode == "fit" and ratio >= 1.0:
+            return self
+        self.config.cell_size = self.config.cell_size * ratio
+        self.move(cp_origin[0], cp_origin[1])
+        return self
 
     @override
     def to_svg_element(self) -> str:
@@ -249,8 +266,8 @@ class Matrix(BaseSVGComponent):
                     appearance=bg_appearance,
                 )
                 cell.move(
-                    self.config.x + i * self.config.cell_size + self.config.cell_size / 2,
-                    self.config.y + j * self.config.cell_size + self.config.cell_size / 2,
+                    self.config.x + j * self.config.cell_size + self.config.cell_size / 2,
+                    self.config.y + i * self.config.cell_size + self.config.cell_size / 2,
                 )
 
                 row_cells.append(cell)
@@ -269,25 +286,19 @@ class Matrix(BaseSVGComponent):
         # Get matrix center point (considering border labeling effect)
         center_x_relative, center_y_relative = self.central_point_relative
 
-        # Calculate matrix boundaries (for determining caption offset)
-        matrix_width = self._cols * self.config.cell_size
-        matrix_height = self._rows * self.config.cell_size
-
         # Adjust coordinates based on position, using center point as reference
         if self._caption_location == "top":
             self._caption.move(center_x_relative, self.config.y - self._caption_margin)
         elif self._caption_location == "down":
             self._caption.move(
-                center_x_relative, self.config.y + matrix_height + self._caption_margin
+                center_x_relative, self.config.y + self.height + self._caption_margin
             )
         elif self._caption_location == "left":
             self._caption.config.text_anchor = "end"
             self._caption.move(self.config.x - self._caption_margin, center_y_relative)
         elif self._caption_location == "right":
             self._caption.config.text_anchor = "start"
-            self._caption.move(
-                self.config.x + matrix_width + self._caption_margin, center_y_relative
-            )
+            self._caption.move(self.config.x + self.width + self._caption_margin, center_y_relative)
 
         return self._caption.to_svg_element()
 

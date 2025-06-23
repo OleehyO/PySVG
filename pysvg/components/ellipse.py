@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Literal, Tuple
 from typing_extensions import override
 
 from pysvg.schema import AppearanceConfig, TransformConfig, BBox
@@ -11,8 +11,8 @@ class EllipseConfig(ComponentConfig):
 
     cx: float = Field(default=100, description="Ellipse center X coordinate")
     cy: float = Field(default=50, description="Ellipse center Y coordinate")
-    rx: float = Field(default=100, ge=0, description="Ellipse X-axis radius (must be non-negative)")
-    ry: float = Field(default=50, ge=0, description="Ellipse Y-axis radius (must be non-negative)")
+    rx: float = Field(default=100, gt=0, description="Ellipse X-axis radius (must be positive)")
+    ry: float = Field(default=50, gt=0, description="Ellipse Y-axis radius (must be positive)")
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
@@ -52,6 +52,29 @@ class Ellipse(BaseSVGComponent):
             width=2 * self.config.rx,
             height=2 * self.config.ry,
         )
+
+    @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "Ellipse":
+        # For ellipse, width = 2*rx, height = 2*ry
+        current_width = 2 * self.config.rx
+        current_height = 2 * self.config.ry
+
+        # Calculate scale factors for width and height
+        width_scale = width / current_width
+        height_scale = height / current_height
+
+        # Use the smaller scale factor to ensure the ellipse fits within both limits
+        scale_factor = min(width_scale, height_scale)
+
+        if mode == "fit" and scale_factor >= 1.0:
+            return self
+
+        self.config.rx = self.config.rx * scale_factor
+        self.config.ry = self.config.ry * scale_factor
+
+        return self
 
     @override
     def to_svg_element(self) -> str:

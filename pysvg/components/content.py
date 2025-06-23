@@ -96,6 +96,14 @@ class TextContent(BaseSVGComponent):
         )
 
     @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "TextContent":
+        raise RuntimeWarning(
+            "Can't restrict size of text content since we can't determine the size of the text"
+        )
+
+    @override
     def to_svg_element(self) -> str:
         attrs = self.get_attr_dict()
         attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
@@ -126,6 +134,17 @@ class ImageContent(BaseSVGComponent):
             width=self.config.width,
             height=self.config.height,
         )
+
+    @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "ImageContent":
+        ratio = min(width / self.config.width, height / self.config.height)
+        if mode == "fit" and ratio >= 1.0:
+            return self
+        self.config.width = self.config.width * ratio
+        self.config.height = self.config.height * ratio
+        return self
 
     @override
     def to_svg_element(self) -> str:

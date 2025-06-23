@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Literal, Tuple
 from typing_extensions import override
 
 from pysvg.schema import AppearanceConfig, TransformConfig, BBox
@@ -43,20 +43,31 @@ class Circle(BaseSVGComponent):
         return (self.config.cx, self.config.cy)
 
     @override
-    def restrict_size(self, max_width: float, max_height: float) -> "Circle":
+    def get_bounding_box(self) -> BBox:
+        return BBox(
+            x=self.transform.translate[0] + self.config.cx - self.config.r,
+            y=self.transform.translate[1] + self.config.cy - self.config.r,
+            width=2 * self.config.r,
+            height=2 * self.config.r,
+        )
+
+    @override
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "Circle":
         # For a circle, both width and height equal the diameter (2 * r)
         current_diameter = 2 * self.config.r
 
-        # Calculate scale factors for both dimensions
-        width_scale = max_width / current_diameter if current_diameter > max_width else 1.0
-        height_scale = max_height / current_diameter if current_diameter > max_height else 1.0
+        # Use the smaller dimension to ensure the circle fits within both limits
+        target_diameter = min(width, height)
 
-        # Use the smaller scale to ensure the circle fits within both limits
-        scale_factor = min(width_scale, height_scale)
-
-        if scale_factor < 1.0:
-            # Apply uniform scale to maintain circle shape
-            self.scale(scale_factor)
+        if mode == "fit":
+            # Only scale down if the current diameter is larger than target
+            if current_diameter > target_diameter:
+                self.config.r = target_diameter / 2
+        elif mode == "force":
+            # Scale to exactly match the target diameter, regardless of current size
+            self.config.r = target_diameter / 2
 
         return self
 
@@ -71,15 +82,6 @@ class Circle(BaseSVGComponent):
         attrs = self.get_attr_dict()
         attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
         return f"<circle {' '.join(attrs_ls)} />"
-
-    @override
-    def get_bounding_box(self) -> BBox:
-        return BBox(
-            x=self.transform.translate[0] + self.config.cx - self.config.r,
-            y=self.transform.translate[1] + self.config.cy - self.config.r,
-            width=2 * self.config.r,
-            height=2 * self.config.r,
-        )
 
     def get_area(self) -> float:
         """

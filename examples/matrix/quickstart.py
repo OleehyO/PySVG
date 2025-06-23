@@ -200,7 +200,7 @@ def generate_demo_svg():
             background_map=bgmap,
             config=MatrixConfig(cell_size=60),
         )
-    ).move_by(290, 50)
+    ).move_by(260, 50)
     canvas.add(colored_matrix)
 
     # 3. Matrix with caption
@@ -245,7 +245,7 @@ def generate_demo_svg():
     bgmap = {i: appearance for i in range(1, 21)}
     large_matrix = (
         Matrix(data=large_data, background_map=bgmap, config=MatrixConfig(cell_size=40))
-    ).move_by(270, 250)
+    ).move_by(250, 250)
     canvas.add(large_matrix)
 
     # 6. Checkerboard pattern (comprehensive example)

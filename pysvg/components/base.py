@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Literal, Tuple
 
 from pysvg.logger import get_logger
 from pysvg.schema import AppearanceConfig, BBox, ComponentConfig, TransformConfig
@@ -56,6 +56,29 @@ class BaseSVGComponent(ABC):
         raise NotImplementedError("Subclasses must implement this method")
 
     @abstractmethod
+    def restrict_size(
+        self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
+    ) -> "BaseSVGComponent":
+        """
+        Restrict the size of the component to a maximum width and height.
+
+        Note: This method will **keep central point and aspect ratio unchanged**
+
+        Args:
+            width: Target width
+            height: Target height
+            mode: Mode to restrict the size. Available options:
+                - "fit": Scale the component to fit within the specified dimensions.
+                        If the component is already smaller, no scaling is applied.
+                - "force": Scale the component to exactly match the specified dimensions,
+                          regardless of its current size.
+
+        Returns:
+            Self for method chaining
+        """
+        raise NotImplementedError("Subclasses must implement this method")
+
+    @abstractmethod
     def to_svg_element(self) -> str:
         """
         Generate the complete SVG element string.
@@ -101,39 +124,6 @@ class BaseSVGComponent(ABC):
         attr = {k: str(v) for k, v in attr.items()}
         return attr
 
-    def restrict_size(self, max_width: float, max_height: float) -> "BaseSVGComponent":
-        """
-        Restrict the size of the component to a maximum width and height.
-        Maintains the aspect ratio by using the smaller scaling factor.
-
-        Args:
-            max_width: Maximum width
-            max_height: Maximum height
-
-        Returns:
-            Self for method chaining
-        """
-        bbox = self.get_bounding_box()
-        current_width = bbox.width
-        current_height = bbox.height
-
-        # Calculate scale factors for both dimensions
-        width_scale = max_width / current_width if current_width > 0 else 1.0
-        height_scale = max_height / current_height if current_height > 0 else 1.0
-
-        # Use the smaller scale factor to maintain aspect ratio
-        scale_factor = min(width_scale, height_scale)
-
-        # Only apply scaling if we need to reduce the size
-        if scale_factor < 1.0:
-            self.scale(scale_factor)
-        else:
-            _logger.info(
-                f"Component {self.__class__.__name__} is already smaller than the maximum size"
-            )
-
-        return self
-
     def has_transform(self) -> bool:
         """Check if the component has any transforms."""
         return self.transform is not None and isinstance(self.transform, TransformConfig)
@@ -177,8 +167,6 @@ class BaseSVGComponent(ABC):
         """
         Set the central point of the component to the left top corner
         """
-        # cp_x, cp_y = self.central_point_relative
-        # self.move_by(-cp_x, -cp_y)
         cp_x, cp_y = self.central_point
         self.move_by(-cp_x, -cp_y)
         return self
@@ -203,21 +191,28 @@ class BaseSVGComponent(ABC):
             self.transform.rotate = angle
         return self
 
-    def scale(self, scale_factor: float | Tuple[float, float]) -> "BaseSVGComponent":
+    def scale(self, scale_factor: float) -> "BaseSVGComponent":
         """
         Scale the component by a specified factor.
 
         Args:
-            scale_factor: Scale factor. Can be a single number (uniform scaling)
-                         or tuple (sx, sy) for different scaling in x and y directions
+            scale_factor: Scale factor.
+
+        Note:
+            This method is different from the standard SVG scale method.
+                1. The standard SVG scale method scales the component from the center,
+                   while this method scales the component from the left top corner.
+                2. We strictly scale according to the size of the graphic bounding box area, which is different from standard SVG
 
         Returns:
             Self for method chaining
         """
-        assert hasattr(self, "transform"), "Component must have transform attribute"
-        assert isinstance(self.transform, TransformConfig), "Transform must be TransformConfig"
-        self.transform.scale = scale_factor
-        return self
+        bbox = self.get_bounding_box()
+        current_width = bbox.width
+        current_height = bbox.height
+        target_width = current_width * scale_factor
+        target_height = current_height * scale_factor
+        return self.restrict_size(target_width, target_height, mode="force")
 
     def skew(self, skew_x: float | None = None, skew_y: float | None = None) -> "BaseSVGComponent":
         """
