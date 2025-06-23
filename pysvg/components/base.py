@@ -200,8 +200,8 @@ class BaseSVGComponent(ABC):
 
         Note:
             This method is different from the standard SVG scale method.
-                1. The standard SVG scale method scales the component from the center,
-                   while this method scales the component from the left top corner.
+                1. The standard SVG scale method scales the component from the left top corner,
+                   while this method scales the component from the center.
                 2. We strictly scale according to the size of the graphic bounding box area, which is different from standard SVG
 
         Returns:
