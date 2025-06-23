@@ -106,9 +106,6 @@ class TransformConfig(BaseSVGConfig):
     # Translation transform. Format: (tx, ty) representing translation amounts in x and y directions
     translate: Tuple[float, float] = (0, 0)
 
-    # Scale transform. Can be a single number (uniform scaling) or tuple (sx, sy) (scaling x and y directions separately)
-    scale: Union[float, Tuple[float, float]] = (1, 1)
-
     # Rotation transform. Can be an angle value (rotate around origin) or triple (angle, cx, cy) (rotate around specified point)
     rotate: Union[float, Tuple[float, float, float]] = (0, 0, 0)
 
@@ -118,20 +115,6 @@ class TransformConfig(BaseSVGConfig):
     # Y-axis skew transform angle
     skew_y: float = 0
 
-    @field_validator("scale")
-    def validate_scale(cls, v):
-        if v is not None:
-            if isinstance(v, (int, float)):
-                if v <= 0:
-                    raise ValueError(f"scale must be positive, got {v}")
-            elif isinstance(v, tuple) and len(v) == 2:
-                sx, sy = v
-                if sx <= 0 or sy <= 0:
-                    raise ValueError(f"scale values must be positive, got {v}")
-            else:
-                raise ValueError(f"scale must be a number or a tuple of two numbers, got {v}")
-        return v
-
     @override
     def to_svg_dict(self) -> dict[str, str]:
         """Generate SVG transform attribute value"""
@@ -140,13 +123,6 @@ class TransformConfig(BaseSVGConfig):
         if self.translate is not None:
             tx, ty = self.translate
             transform_parts.append(f"translate({tx},{ty})")
-
-        if self.scale is not None:
-            if isinstance(self.scale, (int, float)):
-                transform_parts.append(f"scale({self.scale})")
-            else:
-                sx, sy = self.scale
-                transform_parts.append(f"scale({sx},{sy})")
 
         if self.rotate is not None:
             if isinstance(self.rotate, (int, float)):
@@ -166,7 +142,6 @@ class TransformConfig(BaseSVGConfig):
     def reset(self) -> None:
         """Reset the transform to the default values"""
         self.translate = (0, 0)
-        self.scale = (1, 1)
         self.rotate = (0, 0, 0)
         self.skew_x = 0
         self.skew_y = 0
