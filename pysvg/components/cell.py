@@ -9,8 +9,6 @@ from pysvg.logger import get_logger
 from pydantic import Field
 from typing_extensions import override
 
-_logger = get_logger(__name__)
-
 
 class CellConfig(RectangleConfig):
     """Configuration for Cell components, extends Rectangle config."""
@@ -73,6 +71,7 @@ class Cell(BaseSVGComponent):
     @override
     def get_bounding_box(self) -> BBox:
         """Get the bounding box of the cell (same as rectangle)."""
+        _logger = get_logger(self.__class__.__name__)
         if isinstance(self.config.embed_component, TextContent):
             _logger.warning("TextContent may exceed the cell's bounding box")
         return BBox(
@@ -86,6 +85,7 @@ class Cell(BaseSVGComponent):
     def restrict_size(
         self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
     ) -> "Cell":
+        _logger = get_logger(self.__class__.__name__)
         self._rectangle.restrict_size(width, height, mode)
 
         self.config.width = self._rectangle.config.width
@@ -141,6 +141,7 @@ class Cell(BaseSVGComponent):
         and centering it within the cell boundaries.
         """
         self.config: CellConfig
+        _logger = get_logger(self.__class__.__name__)
 
         if not self.has_embedded_component():
             return

@@ -6,8 +6,6 @@ from pysvg.schema import TransformConfig, Color, BBox, ComponentConfig
 from pysvg.components.base import BaseSVGComponent
 from pysvg.logger import get_logger
 
-_logger = get_logger(__name__)
-
 
 class TextConfig(ComponentConfig):
     """Geometry configuration for Text components"""
@@ -73,6 +71,7 @@ class TextContent(BaseSVGComponent):
     @override
     @property
     def central_point_relative(self) -> Tuple[float, float]:
+        _logger = get_logger(self.__class__.__name__)
         if self.config.dominant_baseline != "central":
             raise RuntimeWarning(
                 "When dominant_baseline is not central, we can't determine the relative central point of the text"

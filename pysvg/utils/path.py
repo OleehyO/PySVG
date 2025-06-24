@@ -3,8 +3,6 @@ from typing import Literal
 
 from pysvg.logger import get_logger
 
-_logger = get_logger(__name__)
-
 
 def resolve_path(path: str | Path, as_path: bool = False) -> str | Path:
     if isinstance(path, str):
@@ -39,6 +37,7 @@ def rmdir(path: str | Path, mode: Literal["empty", "recursive"] = "empty") -> No
         path: Path to directory to remove
         mode: "empty" to only remove empty directories, "all" to recursively remove all contents
     """
+    _logger = get_logger(__name__)
     if isinstance(path, str):
         path = Path(path)
 

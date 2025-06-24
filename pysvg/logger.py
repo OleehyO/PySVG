@@ -94,3 +94,10 @@ def get_logger(name: str | None = None, use_file_handler: bool = False) -> Logge
     logger.propagate = False
 
     return logger
+
+
+def set_global_logging_level(level: int | str) -> None:
+    """
+    Set the logging level for the logger.
+    """
+    Globals().logging_level = level

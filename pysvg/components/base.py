@@ -4,8 +4,6 @@ from typing import Literal, Tuple
 from pysvg.logger import get_logger
 from pysvg.schema import AppearanceConfig, BBox, ComponentConfig, TransformConfig
 
-_logger = get_logger(__name__)
-
 
 class BaseSVGComponent(ABC):
     """
@@ -101,6 +99,7 @@ class BaseSVGComponent(ABC):
         """
         relative_x, relative_y = self.central_point_relative
 
+        _logger = get_logger(self.__class__.__name__)
         if not self.has_transform():
             _logger.warning(
                 f"{self.__class__.__name__} has no transform, returning relative central point"

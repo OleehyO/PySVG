@@ -25,8 +25,6 @@ MatElemType = str | int | float
 # Define border position type
 CoordPosition = Literal["upperleft", "upperright", "lowerleft", "lowerright"]
 
-_logger = get_logger(__name__)
-
 
 class MatrixConfig(ComponentConfig):
     """Matrix component configuration"""
@@ -101,6 +99,7 @@ class Matrix(BaseSVGComponent):
             ValueError: If the matrix data is not rectangular, or if caption and caption_location
                 are not properly paired (both must be either set or None).
         """
+        _logger = get_logger(self.__class__.__name__)
         super().__init__(
             config=config or MatrixConfig(),
             transform=transform or TransformConfig(),
