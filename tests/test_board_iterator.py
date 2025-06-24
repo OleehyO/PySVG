@@ -2,8 +2,8 @@ import pytest
 from pysvg.utils.iterator import MatrixBoardIterator
 
 
-class TestMatrix2DBoardIterator:
-    """Test cases for Matrix2DBoardIterator class"""
+class TestMatrixBoardIterator:
+    """Test cases for MatrixBoardIterator class"""
 
     def test_init_valid_params(self):
         """Test iterator initialization with valid parameters"""

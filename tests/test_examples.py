@@ -201,31 +201,3 @@ class TestExamples:
         assert exit_code == 0, (
             f"Rectangle quickstart failed with exit code {exit_code}. Stderr: {stderr}"
         )
-
-    @pytest.mark.parametrize(
-        "example_path",
-        [
-            "cell/quickstart.py",
-            "circle/quickstart.py",
-            "content/quickstart.py",
-            "ellipse/quickstart.py",
-            "line/quickstart.py",
-            "matrix/quickstart.py",
-            "matrix/border_as_number_demo.py",
-            "polyline/quickstart.py",
-            "rectangle/quickstart.py",
-        ],
-    )
-    def test_all_examples_parametrized(self, example_path: str):
-        """Parametrized test for all examples - alternative approach"""
-        script_path = self.examples_dir / example_path
-        assert script_path.exists(), f"Script not found: {script_path}"
-
-        exit_code, stdout, stderr = self._run_python_script(script_path)
-
-        print(f"\n--- {example_path} Output ---")
-        print(f"Exit code: {exit_code}")
-        if stderr:
-            print(f"Stderr: {stderr}")
-
-        assert exit_code == 0, f"{example_path} failed with exit code {exit_code}. Stderr: {stderr}"
