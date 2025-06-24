@@ -102,9 +102,7 @@ class Line(BaseSVGComponent):
 
     @override
     def to_svg_element(self) -> str:
-        attrs = self.get_attr_dict()
-        attrs_ls = [f'{k}="{v}"' for k, v in attrs.items()]
-        return f"<line {' '.join(attrs_ls)} />"
+        return f"<line {self.get_attr_str()} />"
 
     def get_length(self) -> float:
         """

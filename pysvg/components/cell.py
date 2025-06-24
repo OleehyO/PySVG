@@ -1,6 +1,7 @@
 from typing import Literal, Tuple
 
-from pysvg.components.content import TextContent, TextConfig
+from pysvg.constants import INDENT
+from pysvg.components.content import TextContent
 from pysvg.schema import AppearanceConfig, TransformConfig, BBox
 from pysvg.components.base import BaseSVGComponent
 from pysvg.components.rectangle import Rectangle, RectangleConfig
@@ -24,9 +25,7 @@ class CellConfig(RectangleConfig):
 
     @override
     def to_svg_dict(self) -> dict[str, str]:
-        # Cell config should not be directly converted to SVG
-        # It's used to configure the cell structure
-        raise NotImplementedError("CellConfig should not be converted to SVG directly")
+        return {}
 
 
 class Cell(BaseSVGComponent):
@@ -123,15 +122,10 @@ class Cell(BaseSVGComponent):
             self.set_embed_component()
             elements.append(self.config.embed_component.to_svg_element())
 
-        # Wrap in a group with transform if needed
-        if self.has_transform():
-            transform_dict = self.transform.to_svg_dict()
-            if "transform" in transform_dict and transform_dict["transform"] != "none":
-                transform_attr = f' transform="{transform_dict["transform"]}"'
-                return f"<g{transform_attr}>{''.join(elements)}</g>"
-
+        attr = self.get_attr_str()
+        svg_code = "\n".join(elements)
         # If no transform or single element, return joined elements
-        return "".join(elements)
+        return f"<g {attr}>\n{svg_code}".replace("\n", "\n" + INDENT) + "\n</g>"
 
     def has_embedded_component(self) -> bool:
         """Check if cell has an embedded component."""
@@ -179,3 +173,71 @@ class Cell(BaseSVGComponent):
             raise RuntimeError(
                 f"Can't embed component {self.config.embed_component.__class__.__name__} since we can't determine the central point of the component"
             ) from e
+
+
+class CellCenterLocate(Cell):
+    pass
+
+
+class CellLeftTopLocate(Cell):
+    """NOTE: Hacking implementation, used for matrix"""
+
+    @override
+    @property
+    def central_point_relative(self) -> Tuple[float, float]:
+        cpx = self.config.x
+        cpy = self.config.y
+        return (cpx, cpy)
+
+    @override
+    def set_cpoint_to_lefttop(self) -> "Cell":
+        self = super().set_cpoint_to_lefttop()
+        return self.move_by(-self.config.width / 2, -self.config.height / 2)
+
+
+class CellLeftBottomLocate(Cell):
+    """NOTE: Hacking implementation, used for matrix"""
+
+    @override
+    @property
+    def central_point_relative(self) -> Tuple[float, float]:
+        cpx = self.config.x
+        cpy = self.config.y + self.config.height
+        return (cpx, cpy)
+
+    @override
+    def set_cpoint_to_lefttop(self) -> "Cell":
+        self = super().set_cpoint_to_lefttop()
+        return self.move_by(-self.config.width / 2, self.config.height / 2)
+
+
+class CellRightTopLocate(Cell):
+    """NOTE: Hacking implementation, used for matrix"""
+
+    @override
+    @property
+    def central_point_relative(self) -> Tuple[float, float]:
+        cpx = self.config.x + self.config.width
+        cpy = self.config.y
+        return (cpx, cpy)
+
+    @override
+    def set_cpoint_to_lefttop(self) -> "Cell":
+        self = super().set_cpoint_to_lefttop()
+        return self.move_by(self.config.width / 2, -self.config.height / 2)
+
+
+class CellRightBottomLocate(Cell):
+    """NOTE: Hacking implementation, used for matrix"""
+
+    @override
+    @property
+    def central_point_relative(self) -> Tuple[float, float]:
+        cpx = self.config.x + self.config.width
+        cpy = self.config.y + self.config.height
+        return (cpx, cpy)
+
+    @override
+    def set_cpoint_to_lefttop(self) -> "Cell":
+        self = super().set_cpoint_to_lefttop()
+        return self.move_by(self.config.width / 2, self.config.height / 2)

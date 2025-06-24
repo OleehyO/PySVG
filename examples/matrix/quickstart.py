@@ -103,7 +103,7 @@ def caption_examples():
         caption=caption,
         caption_font_size=16,
         caption_font_color=Color("black"),
-        caption_location="down",
+        caption_location="bottom",
         config=MatrixConfig(cell_size=60),
     )
     print(f"Bottom caption: {down_caption_matrix.to_svg_element()}")
@@ -270,7 +270,7 @@ def generate_demo_svg():
         element_map=checkerboard_map,
         background_map=checkerboard_appearance,
         caption=checkerboard_caption,
-        caption_location="down",
+        caption_location="bottom",
         caption_font_size=18,
         caption_font_color=Color("darkgreen"),
         config=MatrixConfig(cell_size=40),

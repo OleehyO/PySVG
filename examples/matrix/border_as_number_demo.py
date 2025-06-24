@@ -50,7 +50,7 @@ def chess_board_example():
     matrix = Matrix(
         data=chess_data,
         background_map=bgmap,
-        border_as_number="upperleft",  # Use upper left corner for coordinate labels
+        border_as_coord="upperleft",  # Use upper left corner for coordinate labels
         coord_font_size=16,  # Coordinate text font size
         coord_font_family="Arial",  # Coordinate text font family
         coord_font_color=Color("darkblue"),  # Coordinate text color
@@ -84,7 +84,7 @@ def custom_border_style_example():
     matrix = Matrix(
         data=data,
         background_map=bgmap,
-        border_as_number="upperleft",
+        border_as_coord="upperleft",
         coord_font_size=18,  # Larger font
         coord_font_family="Times",  # Different font family
         coord_font_color=Color("red"),  # Red coordinate text
@@ -152,7 +152,7 @@ def different_border_positions_example():
 
         matrix = Matrix(
             data=base_data[i],
-            border_as_number=position,
+            border_as_coord=position,
             coord_font_color=color,
             coord_font_size=14,
             background_map=bgmap,
@@ -193,7 +193,7 @@ def game_board_with_caption_example():
     matrix = Matrix(
         data=gomoku_data,
         background_map=bgmap,
-        border_as_number="upperleft",
+        border_as_coord="upperleft",
         coord_font_size=14,
         coord_font_color=Color("saddlebrown"),
         caption=caption,
@@ -237,7 +237,7 @@ def priority_demonstration_example():
         data=data,
         background_map=bgmap,
         element_map=element_map,
-        border_as_number="upperleft",
+        border_as_coord="upperleft",
         coord_font_size=16,
         coord_font_color=Color("red"),
         config=MatrixConfig(cell_size=50),
