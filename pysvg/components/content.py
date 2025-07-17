@@ -259,7 +259,9 @@ class SVGContent(BaseSVGComponent):
         svg_string = re.sub(r'\s+xmlns="[^"]*"', "", svg_string)
 
         # Remove namespace prefixes (like ns0:, ns1:, etc.)
-        svg_string = re.sub(r"</?ns\d+:", "<", svg_string)
+        # Handle opening tags: <ns0: -> <
+        svg_string = re.sub(r"<ns\d+:", "<", svg_string)
+        # Handle closing tags: </ns0: -> </
         svg_string = re.sub(r"</ns\d+:", "</", svg_string)
 
         # Clean up any extra whitespace
