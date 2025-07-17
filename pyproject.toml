@@ -9,7 +9,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
-    "colorama>=0.4.6",
+    "loguru>=0.7.0",
     "pydantic>=2.11.5",
     "typing-extensions>=4.14.0",
 ]
@@ -21,6 +21,9 @@ test = [
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.ruff]
 exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "dist"]
