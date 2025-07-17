@@ -10,6 +10,9 @@ from pydantic import Field
 from typing_extensions import override
 
 
+_logger = get_logger()
+
+
 class CellConfig(RectangleConfig):
     """Configuration for Cell components, extends Rectangle config."""
 
@@ -71,9 +74,8 @@ class Cell(BaseSVGComponent):
     @override
     def get_bounding_box(self) -> BBox:
         """Get the bounding box of the cell (same as rectangle)."""
-        _logger = get_logger(self.__class__.__name__)
         if isinstance(self.config.embed_component, TextContent):
-            _logger.warning("TextContent may exceed the cell's bounding box")
+            _logger.debug("TextContent may exceed the cell's bounding box")
         return BBox(
             x=self.transform.translate[0] + self.config.x,
             y=self.transform.translate[1] + self.config.y,
@@ -85,7 +87,6 @@ class Cell(BaseSVGComponent):
     def restrict_size(
         self, width: float, height: float, mode: Literal["fit", "force"] = "fit"
     ) -> "Cell":
-        _logger = get_logger(self.__class__.__name__)
         self._rectangle.restrict_size(width, height, mode)
 
         self.config.width = self._rectangle.config.width
@@ -98,7 +99,7 @@ class Cell(BaseSVGComponent):
         try:
             self.config.embed_component.restrict_size(width, height, mode)
         except (NotImplementedError, RuntimeWarning):
-            _logger.warning(
+            _logger.info(
                 f"Can't restrict the size of the embedded component {self.config.embed_component.__class__.__name__}, "
                 "will keep the original size",
             )
@@ -141,7 +142,6 @@ class Cell(BaseSVGComponent):
         and centering it within the cell boundaries.
         """
         self.config: CellConfig
-        _logger = get_logger(self.__class__.__name__)
 
         if not self.has_embedded_component():
             return
@@ -158,7 +158,7 @@ class Cell(BaseSVGComponent):
         try:
             self.config.embed_component.restrict_size(available_width, available_height)
         except (NotImplementedError, RuntimeWarning):
-            _logger.warning(
+            _logger.debug(
                 f"Can't restrict the size of the embedded component {self.config.embed_component.__class__.__name__} since we can't get the get_bounding_box method"
             )
 

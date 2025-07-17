@@ -7,7 +7,8 @@ from pysvg.components.base import BaseSVGComponent
 from pysvg.logger import get_logger
 import xml.etree.ElementTree as ET
 from pathlib import Path
-import hashlib
+
+_logger = get_logger()
 
 
 class TextConfig(ComponentConfig):
@@ -74,18 +75,17 @@ class TextContent(BaseSVGComponent):
     @override
     @property
     def central_point_relative(self) -> Tuple[float, float]:
-        _logger = get_logger(self.__class__.__name__)
         if self.config.dominant_baseline != "central":
             raise RuntimeWarning(
                 "When dominant_baseline is not central, we can't determine the relative central point of the text"
             )
 
         if self.config.text_anchor == "start":
-            _logger.warning(
+            _logger.debug(
                 "Text anchor is start, which means we will use the **middle left part** of the text box as the center point",
             )
         elif self.config.text_anchor == "end":
-            _logger.warning(
+            _logger.debug(
                 "Text anchor is end, which means we will use the **middle right part** of the text box as the center point"
             )
 

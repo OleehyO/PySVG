@@ -19,6 +19,8 @@ from pysvg.schema import AppearanceConfig, Color, TransformConfig, BBox
 from pysvg.utils import MatrixIterator, MatrixBoardIterator, add_matrix_border
 from pysvg.logger import get_logger
 
+_logger = get_logger()
+
 # Define matrix element data type
 MatElemType = str | int | float
 
@@ -99,7 +101,6 @@ class Matrix(BaseSVGComponent):
             ValueError: If the matrix data is not rectangular, or if caption and caption_location
                 are not properly paired (both must be either set or None).
         """
-        _logger = get_logger(self.__class__.__name__)
         super().__init__(
             config=config or MatrixConfig(),
             transform=transform or TransformConfig(),
@@ -115,7 +116,7 @@ class Matrix(BaseSVGComponent):
             raise ValueError(f"Invalid caption location: {caption_location}")
 
         if elem_locate_on_line and border_as_coord is None:
-            _logger.info(
+            _logger.debug(
                 "`elem_locate_on_line` is True, but `border_as_coord` set as None. "
                 "We will pad empty elements to the left and top border of the matrix data."
             )

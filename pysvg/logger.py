@@ -1,103 +1,61 @@
-import inspect
-import logging
-import os
-from datetime import datetime
-from logging import Logger
-
-import colorama
-from colorama import Fore, Style
+from loguru import logger
+from loguru._logger import Logger
+import sys
+from pathlib import Path
 
 from pysvg.globals import Globals
 
-# Initialize colorama for colored console output
-colorama.init(autoreset=True)
 
-
-TEMPLATE = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-
-class ColoredFormatter(logging.Formatter):
-    """Custom formatter to add colors based on log level."""
-
-    FORMATS = {  # noqa: E501
-        logging.DEBUG: Fore.LIGHTBLACK_EX + TEMPLATE + Style.RESET_ALL,
-        logging.INFO: Fore.WHITE + TEMPLATE + Style.RESET_ALL,
-        logging.WARNING: Fore.YELLOW + TEMPLATE + Style.RESET_ALL,
-        logging.ERROR: Fore.RED + TEMPLATE + Style.RESET_ALL,
-        logging.CRITICAL: Fore.RED + Style.BRIGHT + TEMPLATE + Style.RESET_ALL,
-    }  # noqa: E501
-
-    def format(self, record):
-        log_fmt = self.FORMATS.get(record.levelno, self.FORMATS[logging.INFO])
-        formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
-        return formatter.format(record)
-
-
-def get_logger(name: str | None = None, use_file_handler: bool = False) -> Logger:
-    """
-    Creates and configures a logger with the caller's module name (if provided) or the first two modules.
-    If the module name is too long, it takes the first two modules.
-
-    Args:
-        name (str, optional): Custom logger name. If None, derives from caller's module.
-        use_file_handler (bool, optional): Whether to use a file handler. Defaults to False.
-
-    Returns:
-        Logger: Configured logger with colored console output and file handler.
-    """
-    # If name is not provided, derive it from the caller's module
-    if name is None:
-        # Get the caller's stack frame
-        frame = inspect.stack()[1]
-        module = inspect.getmodule(frame[0])
-        if module and module.__name__:
-            module_name = module.__name__
-            # Split module name and take first two components if too long
-            parts = module_name.split(".")
-            if len(parts) > 2:
-                name = ".".join(parts[:2])
-            else:
-                name = module_name
-        else:
-            name = "root"
-
-    # Create or get logger
-    logger = logging.getLogger(name)
-
-    # Prevent duplicate handlers
-    if logger.handlers:
-        return logger
-
-    # Set logger level
-    logger.setLevel(Globals().logging_level)
-
-    # Create console handler with colored formatter
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(Globals().logging_level)
-    console_formatter = ColoredFormatter()
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-
-    # Create file handler
-    if use_file_handler:
-        log_dir = "logs"
-        os.makedirs(log_dir, exist_ok=True)
-        log_file = os.path.join(log_dir, f"{datetime.now().strftime('%Y%m%d')}.log")
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(Globals().logging_level)
-        # File formatter (no colors)
-        file_formatter = logging.Formatter(TEMPLATE, datefmt="%Y-%m-%d %H:%M:%S")
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
-
-    # Prevent logger from propagating to root logger
-    logger.propagate = False
-
+def get_logger() -> Logger:
     return logger
 
 
-def set_global_logging_level(level: int | str) -> None:
+def configure_logging(
+    console_level: str | int | None = None,
+    file_level: str | int | None = None,
+    use_file_handler: bool = False,
+) -> None:
     """
-    Set the logging level for the logger.
+    Configures the global Loguru logger with console and optional file handlers.
+    This function should be called ONLY ONCE at application startup.
+    """
+    logger.remove()  # Always start with a clean slate to ensure previous handlers are gone
+
+    # Use Globals().logging_level as default if not explicitly provided
+    effective_console_level = (
+        console_level if console_level is not None else Globals().logging_level
+    )
+    effective_file_level = file_level if file_level is not None else Globals().logging_level
+
+    # Add console handler
+    logger.add(
+        sys.stderr,
+        level=effective_console_level,
+        colorize=True,
+    )
+
+    # Add file handler if requested
+    if use_file_handler:
+        log_dir = Path("logs")
+        log_dir.mkdir(exist_ok=True)
+        log_file = log_dir / f"{Path().cwd().name}.log"
+
+        logger.add(
+            log_file,
+            level=effective_file_level,
+            rotation="10 MB",
+            retention="7 days",
+            compression="zip",
+            enqueue=True,  # Recommended for file logging, especially with multiple processes
+            diagnose=True,  # Set to False in production
+        )
+
+
+def set_global_logging_level(level: int | str, use_file_handler: bool = False) -> None:
+    """
+    Updates the global logging level and reconfigures all active handlers.
+    This is the way to dynamically change log levels at runtime.
     """
     Globals().logging_level = level
+
+    configure_logging(console_level=level, file_level=level, use_file_handler=use_file_handler)
