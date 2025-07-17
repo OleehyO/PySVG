@@ -292,6 +292,14 @@ class Matrix(BaseSVGComponent):
 
         self._create_cells()
 
+        # Collect all SVGContent components for symbol definitions
+        svg_symbols = self._collect_svg_symbols()
+
+        # Add symbol definitions if any
+        if svg_symbols:
+            defs_content = "\n".join(svg_symbols)
+            elements.append(f"<defs>\n{defs_content}".replace("\n", "\n" + INDENT) + "\n</defs>")
+
         # Add all cells in the order specified by the iterator.
         for i, j in self._it:
             elements.append(self._cells[i][j].to_svg_element())
@@ -303,6 +311,23 @@ class Matrix(BaseSVGComponent):
         attr = self.get_attr_str()
         svg_code = "\n".join(elements)
         return f"<g {attr}>\n{svg_code}".replace("\n", "\n" + INDENT) + "\n</g>"
+
+    def _collect_svg_symbols(self) -> list[str]:
+        """Collect all SVGContent components and generate symbol definitions"""
+        from pysvg.components.content import SVGContent
+
+        svg_symbols = []
+        seen_symbols = set()
+
+        # Iterate through all elements in the matrix to find SVGContent components
+        for original_elem in self._element_map.values():
+            if isinstance(original_elem, SVGContent):
+                symbol_id = original_elem.symbol_id
+                if symbol_id not in seen_symbols:
+                    svg_symbols.append(original_elem.get_symbol_definition())
+                    seen_symbols.add(symbol_id)
+
+        return svg_symbols
 
     def _create_cells(self):
         """Create all Cell components"""
